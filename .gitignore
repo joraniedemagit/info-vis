@@ -1,0 +1,4 @@
+.ipynb_checkpoints
+data/globalterrorismdb_0617dist.csv
+data/terror.csv
+data/terror.json
