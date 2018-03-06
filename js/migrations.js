@@ -1,62 +1,8 @@
-var countries = {};
-var migrations = {'1990': [], '1995': [], '2000': [], '2005': [], '2010': [], '2015': [], '2017': []};
+var migrations;
 
-var MIGRATION_THRESHOLD = 500000; // min amount of migrants to include a migration
-
-function loadCountriesData() {
-  d3.csv("data/cities.csv", function(data) {
-    for (var i = 0; i < data.length; i++) {
-      var country = data[i].country;
-      var city = data[i].city;
-      var lat = data[i].lat;
-      var lng = data[i].lng;
-
-      var coords = {};
-
-      coords.country = country;
-      coords.city = city;
-      coords.latitude = lat;
-      coords.longitude = lng;
-
-      countries[country] = coords;
-    }
-  });
-}
-
-function loadMigrationData() {
-  d3.csv("data/unprocessedMigrations.csv", function(data) {
-    for (var i = 0; i < data.length; i++) {
-      var country = data[i]['Major area, region, country or area of destination'];
-      var year = data[i].Year;
-      var origin = countries[country];
-
-      if (country in countries) {
-        for (var destination in data[i]) {
-          if (destination in countries && destination != country && data[i][destination] > MIGRATION_THRESHOLD) {
-            var migrationData = {};
-
-            migrationData.origin = countries[country];
-            migrationData.destination = countries[destination];
-
-            migrations[year].push(migrationData);
-          }
-        }
-      }
-    }
-  });
-
-/* SAVE TO FILE RATHER THAN DOING THE PROCESSING EVERY SINGLE TIME
-  var jsonData = JSON.stringify(migrations);
-  var fs = require('fs');
-
-  fs.writeFile("migrations.json", jsonData, function(err) {
-      if(err) {
-          return console.log(err);
-      }
-  }); */
-
-  console.log(migrations['2015']);
-}
+d3.json("data/migrations.json", function(error, data) {
+    migrations = data;
+});
 
 function drawMigrations() {
   var map = new Datamap({
