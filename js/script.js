@@ -105,8 +105,9 @@ window.onload = function() {
                     var y = projection([d.Longitude, d.Latitude])[1];
                     return y;
                 })
-                .attr("r", 15)
-                .style("fill", "yellow");
+                .attr("r", 10)
+                .style("fill", "yellow")
+                .style("opacity", "0.5");
 
         });
     }
