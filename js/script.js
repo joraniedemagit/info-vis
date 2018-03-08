@@ -49,10 +49,19 @@ window.onload = () => {
     d3.json("data/world-topo-min.json", function(error, world) {
         var countries = topojson.feature(world, world.objects.countries)
             .features;
-
         topo = countries;
-        draw(topo);
+
+        d3.json("data/migrations.json", (error, migrations) => {
+            var migrations_test = migrations['2017'];
+            console.log('Migrations: ', migrations_test);
+
+            draw(topo);
+        });
     });
+
+    function handleClick(id, name) {
+        console.log('Click! Name: ', name, ' (ID: ', id, ')');
+    }
 
     function handleMouseOver() {
         var mouse = d3.mouse(svg.node()).map(function(d) {
@@ -106,7 +115,12 @@ window.onload = () => {
                 return d.properties.color;
             })
             .on("mouseover", handleMouseOver)
-            .on("mouseout", handleMouseOut);
+            .on("mouseout", handleMouseOut)
+            .on("click", (d, i) => {
+                handleClick(d.id, d.properties.name);
+            });
+
+
     }
 
     function redraw() {
