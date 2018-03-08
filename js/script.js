@@ -1,42 +1,49 @@
-window.onload = function() {
-    d3.select(window).on("resize", throttle);
+window.onload = () => {
 
-    var zoom = d3.behavior
+    d3.select(window).on("resize", throttle);
+    var zoom = d3
         .zoom()
         .scaleExtent([1, 9])
         .on("zoom", move);
 
-    var width = document.getElementById("container").offsetWidth;
+    var c = document.getElementById("container");
+    var width = c.offsetWidth;
     var height = width / 2;
+
+    //offsets for tooltips
+    var offsetL = c.offsetLeft + 20;
+    var offsetT = c.offsetTop + 10;
 
     var topo, projection, path, svg, g;
 
-    var tooltip = d3
-        .select("#container")
+    //var graticule = d3.geo.graticule();
+    var graticule = d3.geoGraticule();
+
+    var tooltip = d3.select("#container")
         .append("div")
         .attr("class", "tooltip hidden");
 
     setup(width, height);
 
     function setup(width, height) {
-        projection = d3.geo
-            .mercator()
+        //projection = d3.geo.mercator()
+        projection = d3
+            .geoMercator()
             .translate([width / 2, height / 2])
             .scale(width / 2 / Math.PI);
 
-        path = d3.geo.path().projection(projection);
+        //path = d3.geo.path().projection(projection);
+        path = d3.geoPath().projection(projection);
 
-        svg = d3
-            .select("#container")
+        svg = d3.select("#container")
             .append("svg")
             .attr("width", width)
             .attr("height", height)
-            .attr("text-align", "center")
             .call(zoom)
-            .on("click", click)
+            //.on("click", click)
             .append("g");
 
-        g = svg.append("g");
+        g = svg.append("g").on("click", click);
     }
 
     d3.json("data/world-topo-min.json", function(error, world) {
@@ -47,7 +54,41 @@ window.onload = function() {
         draw(topo);
     });
 
+    function handleMouseOver() {
+        var mouse = d3.mouse(svg.node()).map(function(d) {
+            return parseInt(d);
+        });
+        tooltip
+            .classed("hidden", false)
+            .attr(
+                "style",
+                "left:" +
+                    (mouse[0] + offsetL) +
+                    "px;top:" +
+                    (mouse[1] + offsetT) +
+                    "px"
+            )
+            .html(this.__data__.properties.name);
+    }
+
+    function handleMouseOut() {
+        tooltip.classed("hidden", true);
+    }
+
     function draw(topo) {
+        svg.append("path")
+            .datum(graticule)
+            .attr("class", "graticule")
+            .attr("d", path);
+
+        g.append("path")
+            .datum({
+                type: "LineString",
+                coordinates: [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]]
+            })
+            .attr("class", "equator")
+            .attr("d", path);
+
         var country = g.selectAll(".country").data(topo);
 
         country
@@ -61,59 +102,15 @@ window.onload = function() {
             .attr("title", function(d, i) {
                 return d.properties.name;
             })
-            .style("fill", "#757575");
-
-        //offsets for tooltips
-        var offsetL = document.getElementById("container").offsetLeft + 20;
-        var offsetT = document.getElementById("container").offsetTop + 10;
-
-        //tooltips
-        country
-            .on("mousemove", function(d, i) {
-                var mouse = d3.mouse(svg.node()).map(function(d) {
-                    return parseInt(d);
-                });
-
-                tooltip
-                    .classed("hidden", false)
-                    .attr(
-                        "style",
-                        "left:" +
-                            (mouse[0] + offsetL) +
-                            "px;top:" +
-                            (mouse[1] + offsetT) +
-                            "px"
-                    )
-                    .html(d.properties.name);
+            .style("fill", function(d, i) {
+                return d.properties.color;
             })
-            .on("mouseout", function(d, i) {
-                tooltip.classed("hidden", true);
-            });
-
-        d3.json("data/terror-test.json", (error, terror) => {
-            console.log('Terror: ', terror);
-
-            g.selectAll("circle")
-                .data(terror)
-                .enter()
-                .append("circle")
-                .attr("cx", d => {
-                    var x = projection([d.Longitude, d.Latitude])[0];
-                    return x;
-                })
-                .attr("cy", d => {
-                    var y = projection([d.Longitude, d.Latitude])[1];
-                    return y;
-                })
-                .attr("r", 10)
-                .style("fill", "yellow")
-                .style("opacity", "0.5");
-
-        });
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut);
     }
 
     function redraw() {
-        width = document.getElementById("container").offsetWidth;
+        width = c.offsetWidth;
         height = width / 2;
         d3.select("svg").remove();
         setup(width, height);
@@ -121,8 +118,10 @@ window.onload = function() {
     }
 
     function move() {
-        var t = d3.event.translate;
-        var s = d3.event.scale;
+        //var t = d3.event.translate;
+        var t = [d3.event.transform.x, d3.event.transform.y];
+        //var s = d3.event.scale;
+        var s = d3.event.transform.k;
         zscale = s;
         var h = height / 4;
 
@@ -136,11 +135,11 @@ window.onload = function() {
             Math.max(height * (1 - s) - h * s, t[1])
         );
 
-        zoom.translate(t);
+        //zoom.translateBy(t);
         g.attr("transform", "translate(" + t + ")scale(" + s + ")");
 
         //adjust the country hover stroke width based on zoom level
-        d3.selectAll(".country").style("stroke-width", 0.5 / s);
+        d3.selectAll(".country").style("stroke-width", 1.5 / s);
     }
 
     var throttleTimer;
@@ -156,4 +155,28 @@ window.onload = function() {
         var latlon = projection.invert(d3.mouse(this));
         console.log(latlon);
     }
-}; // end window.onload
+
+    //function to add points and text to the map (used in plotting capitals)
+    function addpoint(lon, lat, text) {
+        var gpoint = g.append("g").attr("class", "gpoint");
+        var x = projection([lon, lat])[0];
+        var y = projection([lon, lat])[1];
+
+        gpoint
+            .append("svg:circle")
+            .attr("cx", x)
+            .attr("cy", y)
+            .attr("class", "point")
+            .attr("r", 1.5);
+
+        //conditional in case a point has no associated text
+        if (text.length > 0) {
+            gpoint
+                .append("text")
+                .attr("x", x + 2)
+                .attr("y", y + 2)
+                .attr("class", "text")
+                .text(text);
+        }
+    }
+};
