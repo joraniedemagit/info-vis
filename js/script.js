@@ -52,15 +52,23 @@ window.onload = () => {
         topo = countries;
 
         d3.json("data/migrations.json", (error, migrations) => {
-            var migrations_test = migrations['2017'];
-            console.log('Migrations: ', migrations_test);
+            var migrations = migrations['2017'];
+            console.log('Migrations: ', migrations);
 
-            draw(topo);
+            draw(topo, migrations);
         });
     });
 
-    function handleClick(id, name) {
+    function handleClick(id, name, migrations) {
         console.log('Click! Name: ', name, ' (ID: ', id, ')');
+
+        getArrowsTo(name, migrations);
+    }
+
+    function getArrowsTo(name, migrations) {
+        for(i in migrations) {
+            console.log(i);
+        }
     }
 
     function handleMouseOver() {
@@ -84,7 +92,7 @@ window.onload = () => {
         tooltip.classed("hidden", true);
     }
 
-    function draw(topo) {
+    function draw(topo, migrations) {
         svg.append("path")
             .datum(graticule)
             .attr("class", "graticule")
@@ -117,7 +125,7 @@ window.onload = () => {
             .on("mouseover", handleMouseOver)
             .on("mouseout", handleMouseOut)
             .on("click", (d, i) => {
-                handleClick(d.id, d.properties.name);
+                handleClick(d.id, d.properties.name, migrations);
             });
 
 
