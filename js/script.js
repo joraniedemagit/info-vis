@@ -93,7 +93,7 @@ window.onload = function() {
         d3.json("data/terror-test.json", (error, terror) => {
             console.log('Terror: ', terror);
 
-            svg.selectAll("circle")
+            g.selectAll("circle")
                 .data(terror)
                 .enter()
                 .append("circle")
