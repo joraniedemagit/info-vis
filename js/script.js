@@ -1,208 +1,197 @@
-window.onload = () => {
-
-    d3.select(window).on("resize", throttle);
-    var zoom = d3
-        .zoom()
-        .scaleExtent([1, 9])
-        .on("zoom", move);
-
-    var c = document.getElementById("container");
-    var width = c.offsetWidth;
-    var height = width / 2;
-
-    //offsets for tooltips
-    var offsetL = c.offsetLeft + 20;
-    var offsetT = c.offsetTop + 10;
-
-    var topo, projection, path, svg, g;
-
-    //var graticule = d3.geo.graticule();
-    var graticule = d3.geoGraticule();
-
-    var tooltip = d3.select("#container")
-        .append("div")
-        .attr("class", "tooltip hidden");
-
-    // const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
 
-    // const colorScale = d3.scaleOrdinal()
-    //     .range(["#2c7bb6", "#00a6ca","#00ccbc","#90eb9d","#ffff8c","#f9d057","#f29e2e","#e76818","#d7191c"]);
-    const colorScale = d3.scaleOrdinal().range(d3.schemeBlues[5]);
+// Visualize global terrorism
+d3.json("data/terror-test.json", (error, terror) => {
+    console.log('Terror: ', terror);
+    // colorScale.domain(terror.map( d => d.Country ));
+    dict = {};
+    terror.forEach( t => {
+        console.log( typeof(t.Killed), t.Killed);
+        dict[t.CountryCode] ?
+            dict[t.CountryCode] = 0 :
+            dict[t.CountryCode] = 1; //dict[t.CountryCode] = dict[t.CountryCode] + 1;//t.Killed;
+        // dict[t.CountryCode] = 0
+    })
+    console.log(dict);
+});
 
-    setup(width, height);
+// example data from server
+const series = [
+    ["BLR",75],["BLZ",43],["RUS",50],["RWA",88],["SRB",21],["TLS",43],
+    ["REU",21],["TKM",19],["TJK",60],["ROU",4],["TKL",44],["GNB",38],
+    ["GUM",67],["GTM",2],["SGS",95],["GRC",60],["GNQ",57],["GLP",53],
+    ["JPN",59],["GUY",24],["GGY",4],["GUF",21],["GEO",42],["GRD",65],
+    ["GBR",14],["GAB",47],["SLV",15],["GIN",19],["GMB",63],["GRL",56],
+    ["ERI",57],["MNE",93],["MDA",39],["MDG",71],["MAF",16],["MAR",8],
+    ["MCO",25],["UZB",81],["MMR",21],["MLI",95],["MAC",33],["MNG",93],
+    ["MHL",15],["MKD",52],["MUS",19],["MLT",69],["MWI",37],["MDV",44],
+    ["MTQ",13],["MNP",21],["MSR",89],["MRT",20],["IMN",72],["UGA",59],
+    ["TZA",62],["MYS",75],["MEX",80],["ISR",77],["FRA",54],["IOT",56],
+    ["SHN",91],["FIN",51],["FJI",22],["FLK",4],["FSM",69],["FRO",70],
+    ["NIC",66],["NLD",53],["NOR",7],["NAM",63],["VUT",15],["NCL",66],
+    ["NER",34],["NFK",33],["NGA",45],["NZL",96],["NPL",21],["NRU",13],
+    ["NIU",6],["COK",19],["XKX",32],["CIV",27],["CHE",65],["COL",64],
+    ["CHN",16],["CMR",70],["CHL",15],["CCK",85],["CAN",76],["COG",20],
+    ["CAF",93],["COD",36],["CZE",77],["CYP",65],["CXR",14],["CRI",31],
+    ["CUW",67],["CPV",63],["CUB",40],["SWZ",58],["SYR",96],["SXM",31]];
 
-    function setup(width, height) {
-        projection = d3
-            .geoMercator()
-            .translate([width / 2, height / 2])
-            .scale(width / 2 / Math.PI);
+const onlyValues = series.map(function(obj){ return obj[1]; });
+const minValue = Math.min.apply(null, onlyValues);
+const maxValue = Math.max.apply(null, onlyValues);
 
-        //path = d3.geo.path().projection(projection);
-        path = d3.geoPath().projection(projection);
+const paletteScale = d3.scale
+    .linear()
+    .domain([minValue, maxValue])
+    .range(["#EFEFFF", "#02386F"]); // blue color
 
-        svg = d3.select("#container")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .call(zoom)
-            //.on("click", click)
-            .append("g");
+// Datamaps expect data in format:
+// { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
+//   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
+var dataset = {};
 
-        g = svg.append("g").on("click", click);
-    }
+// fill dataset in appropriate format
+series.forEach(function(item){ //
+    // item example value ["USA", 70]
+    var iso = item[0],
+    value = item[1];
+    dataset[iso] = { numberOfThings: value, fillColor: paletteScale(value) };
+});
 
-    d3.json("data/world-topo-min.json", function(error, world) {
-        var countries = topojson.feature(world, world.objects.countries).features;
+const map = new Datamap({
+    element: document.getElementById("container"),
+    data: dataset
+});
 
-        topo = countries;
+// Draw a legend for this map
+map.legend();
 
-        // Visualize global terrorism
-        d3.json("data/terror-test.json", (error, terror) => {
-            console.log('Terror: ', terror);
-            colorScale.domain(terror.map( d => d.Country ));
-        });
+// Make map responsive
+d3.select(window).on("resize", function() {
+    map.resize();
+});
 
-        draw(topo);
-    });
+var presidentialTrips = [
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 32.066667,
+          longitude: 34.783333
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 19.433333,
+          longitude: -99.133333
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 9.933333,
+          longitude: -84.083333
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 54.597 ,
+          longitude: -5.93
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 52.516667,
+          longitude: 13.383333
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 14.692778,
+          longitude: -17.446667
+      }
+  },
+  {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: -26.204444,
+          longitude: 28.045556
+      }
+  },
+          {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: -6.8,
+          longitude: 39.283333
+      }
+  },
+          {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 59.329444,
+          longitude: 18.068611
+      }
+  },
+          {
+      origin: {
+          latitude: 38.895111,
+          longitude: -77.036667
+      },
+      destination: {
+          latitude: 59.95 ,
+          longitude: 30.3
+      }
+  }
+];
 
-    function handleClick(id, name, migrations) {
-        console.log('Click! Name: ', name, ' (ID: ', id, ')');
-
-        getArrowsTo(name, migrations);
-    }
-
-    function getArrowsTo(name, migrations) {
-        for(i in migrations) {
-            console.log(i);
+map.arc( presidentialTrips, {
+    strokeWidth: 2,
+    strokeColor: "rgba(255,255,0,0.7)",
+    greatArc: true,
+    popupOnHover: true, // True to show the popup while hovering
+    highlightOnHover: true,
+    popupTemplate: (geography, data) => { // This function should just return a string
+        return '<div class="hoverinfo">Test test test</div>';
+        // Case with latitude and longitude
+        if ( ( data.origin && data.destination ) && data.origin.latitude && data.origin.longitude && data.destination.latitude && data.destination.longitude ) {
+          return '<div class="hoverinfo"><strong>Arc</strong><br>Origin: ' + JSON.stringify(data.origin) + '<br>Destination: ' + JSON.stringify(data.destination) + '</div>';
+        }
+        // Case with only country name
+        else if ( data.origin && data.destination ) {
+          return '<div class="hoverinfo"><strong>Arc</strong><br>' + data.origin + ' -> ' + data.destination + '</div>';
+        }
+        // Missing information
+        else {
+          return '';
         }
     }
-
-    function handleMouseOver() {
-        var mouse = d3.mouse(svg.node()).map(function(d) {
-            return parseInt(d);
-        });
-        tooltip
-            .classed("hidden", false)
-            .attr(
-                "style",
-                "left:" +
-                    (mouse[0] + offsetL) +
-                    "px;top:" +
-                    (mouse[1] + offsetT) +
-                    "px"
-            )
-            .html(this.__data__.properties.name);
-    }
-
-    function handleMouseOut() {
-        tooltip.classed("hidden", true);
-    }
-
-    function draw(topo, migrations) {
-        svg.append("path")
-            .datum(graticule)
-            .attr("class", "graticule")
-            .attr("d", path);
-
-        g.append("path")
-            .datum({
-                type: "LineString",
-                coordinates: [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]]
-            })
-            .attr("class", "equator")
-            .attr("d", path);
-
-        var country = g.selectAll(".country")
-            .data(topo)
-            .enter()
-            .insert("path")
-            .attr("class", "country")
-            .attr("d", path)
-            .attr("id", function(d, i) {
-                // console.log('topo item:', d);
-                return d.id;
-            })
-            .attr("title", function(d, i) {
-                return d.properties.name;
-            })
-            .style("fill", d => colorScale(d.properties.name) )
-            .on("mouseover", handleMouseOver)
-            .on("mouseout", handleMouseOut)
-            .on("click", (d, i) => {
-                handleClick(d.id, d.properties.name, migrations);
-            });
-
-
-    }
-
-    function redraw() {
-        width = c.offsetWidth;
-        height = width / 2;
-        d3.select("svg").remove();
-        setup(width, height);
-        draw(topo);
-    }
-
-    function move() {
-        //var t = d3.event.translate;
-        var t = [d3.event.transform.x, d3.event.transform.y];
-        //var s = d3.event.scale;
-        var s = d3.event.transform.k;
-        zscale = s;
-        var h = height / 4;
-
-        t[0] = Math.min(
-            width / height * (s - 1),
-            Math.max(width * (1 - s), t[0])
-        );
-
-        t[1] = Math.min(
-            h * (s - 1) + h * s,
-            Math.max(height * (1 - s) - h * s, t[1])
-        );
-
-        //zoom.translateBy(t);
-        g.attr("transform", "translate(" + t + ")scale(" + s + ")");
-
-        //adjust the country hover stroke width based on zoom level
-        d3.selectAll(".country").style("stroke-width", 1.5 / s);
-    }
-
-    var throttleTimer;
-    function throttle() {
-        window.clearTimeout(throttleTimer);
-        throttleTimer = window.setTimeout(function() {
-            redraw();
-        }, 200);
-    }
-
-    //geo translation on mouse click in map
-    function click() {
-        var latlon = projection.invert(d3.mouse(this));
-        console.log(latlon);
-    }
-
-    //function to add points and text to the map (used in plotting capitals)
-    function addpoint(lon, lat, text) {
-        var gpoint = g.append("g").attr("class", "gpoint");
-        var x = projection([lon, lat])[0];
-        var y = projection([lon, lat])[1];
-
-        gpoint
-            .append("svg:circle")
-            .attr("cx", x)
-            .attr("cy", y)
-            .attr("class", "point")
-            .attr("r", 1.5);
-
-        //conditional in case a point has no associated text
-        if (text.length > 0) {
-            gpoint.append("text")
-                .attr("x", x + 2)
-                .attr("y", y + 2)
-                .attr("class", "text")
-                .text(text);
-        }
-    }
-};
+});

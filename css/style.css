@@ -19,10 +19,9 @@ body {
 
 #container {
   margin:10px 10%;
-  border:2px solid #000;
-  height:100%;
-  overflow:hidden;
+  border:1px solid #000;
   background: #151514;
+  height: 600px;
 }
 
 .hidden {
@@ -43,4 +42,38 @@ div.tooltip {
 #titleText {
   text-align: center;
   font-family: sans-serif;
+}
+
+/* .hoverinfo {
+    z-index: 10001;
+    position: absolute;
+    display: block;
+    top: 269.125px;
+    left: 908.406px;
+} */
+
+
+
+
+
+
+.list-inline {
+  padding-left: 0;
+  list-style: none;
+}
+
+li.key {
+  border-top-width: 15px;
+  border-top-style: solid;
+  font-size: .75em;
+  width: 30%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.list-inline>li {
+ display: inline-block;
+ padding-right: 0px;
+ padding-left: 0px;
+ text-align: left;
 }
