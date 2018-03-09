@@ -66,6 +66,18 @@ window.onload = () => {
         draw(topo);
     });
 
+    function handleClick(id, name, migrations) {
+        console.log('Click! Name: ', name, ' (ID: ', id, ')');
+
+        getArrowsTo(name, migrations);
+    }
+
+    function getArrowsTo(name, migrations) {
+        for(i in migrations) {
+            console.log(i);
+        }
+    }
+
     function handleMouseOver() {
         var mouse = d3.mouse(svg.node()).map(function(d) {
             return parseInt(d);
@@ -87,7 +99,7 @@ window.onload = () => {
         tooltip.classed("hidden", true);
     }
 
-    function draw(topo) {
+    function draw(topo, migrations) {
         svg.append("path")
             .datum(graticule)
             .attr("class", "graticule")
@@ -116,7 +128,12 @@ window.onload = () => {
             })
             .style("fill", d => colorScale(d.properties.name) )
             .on("mouseover", handleMouseOver)
-            .on("mouseout", handleMouseOut);
+            .on("mouseout", handleMouseOut)
+            .on("click", (d, i) => {
+                handleClick(d.id, d.properties.name, migrations);
+            });
+
+
     }
 
     function redraw() {
