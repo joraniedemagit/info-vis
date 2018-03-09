@@ -23,10 +23,16 @@ window.onload = () => {
         .append("div")
         .attr("class", "tooltip hidden");
 
+    // const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+
+    // const colorScale = d3.scaleOrdinal()
+    //     .range(["#2c7bb6", "#00a6ca","#00ccbc","#90eb9d","#ffff8c","#f9d057","#f29e2e","#e76818","#d7191c"]);
+    const colorScale = d3.scaleOrdinal().range(d3.schemeBlues[5]);
+
     setup(width, height);
 
     function setup(width, height) {
-        //projection = d3.geo.mercator()
         projection = d3
             .geoMercator()
             .translate([width / 2, height / 2])
@@ -47,10 +53,16 @@ window.onload = () => {
     }
 
     d3.json("data/world-topo-min.json", function(error, world) {
-        var countries = topojson.feature(world, world.objects.countries)
-            .features;
+        var countries = topojson.feature(world, world.objects.countries).features;
 
         topo = countries;
+
+        // Visualize global terrorism
+        d3.json("data/terror-test.json", (error, terror) => {
+            console.log('Terror: ', terror);
+            colorScale.domain(terror.map( d => d.Country ));
+        });
+
         draw(topo);
     });
 
@@ -89,22 +101,20 @@ window.onload = () => {
             .attr("class", "equator")
             .attr("d", path);
 
-        var country = g.selectAll(".country").data(topo);
-
-        country
+        var country = g.selectAll(".country")
+            .data(topo)
             .enter()
             .insert("path")
             .attr("class", "country")
             .attr("d", path)
             .attr("id", function(d, i) {
+                // console.log('topo item:', d);
                 return d.id;
             })
             .attr("title", function(d, i) {
                 return d.properties.name;
             })
-            .style("fill", function(d, i) {
-                return d.properties.color;
-            })
+            .style("fill", d => colorScale(d.properties.name) )
             .on("mouseover", handleMouseOver)
             .on("mouseout", handleMouseOut);
     }
@@ -171,8 +181,7 @@ window.onload = () => {
 
         //conditional in case a point has no associated text
         if (text.length > 0) {
-            gpoint
-                .append("text")
+            gpoint.append("text")
                 .attr("x", x + 2)
                 .attr("y", y + 2)
                 .attr("class", "text")
