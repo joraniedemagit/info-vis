@@ -1,79 +1,23 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:100,300,400,700');
+
 body {
-  background-color: #F5F5F5;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+  /* background-color: #F5F5F5; */
 }
 
-.country {
-  stroke: #E0E0E0;
-  stroke-width: 0.5px;
-}
-
-.country:hover{
-  stroke: #fff !important;
-  stroke-width: 1.5px !important;
-}
-
-.text{
-  font-size:10px;
-  text-transform:capitalize;
-}
-
-#container {
-  margin:10px 10%;
-  border:1px solid #000;
-  background: #151514;
-  height: 600px;
-}
-
-.hidden {
-  display: none;
-}
-
-div.tooltip {
-  color: #222;
-  background: #fff;
-  padding: .5em;
-  text-shadow: #f5f5f5 0 1px 0;
-  border-radius: 2px;
-  box-shadow: 0px 0px 2px 0px #a6a6a6;
-  opacity: 0.9;
-  position: absolute;
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 100;
 }
 
 #titleText {
   text-align: center;
-  font-family: sans-serif;
 }
 
-/* .hoverinfo {
-    z-index: 10001;
-    position: absolute;
-    display: block;
-    top: 269.125px;
-    left: 908.406px;
-} */
-
-
-
-
-
-
-.list-inline {
-  padding-left: 0;
-  list-style: none;
-}
-
-li.key {
-  border-top-width: 15px;
-  border-top-style: solid;
-  font-size: .75em;
-  width: 30%;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.list-inline>li {
- display: inline-block;
- padding-right: 0px;
- padding-left: 0px;
- text-align: left;
+#container {
+  margin:10px 10%;
+  border:1px solid #F5F5F5;
+  /* background: #151514; */
+  height: 600px;
 }
