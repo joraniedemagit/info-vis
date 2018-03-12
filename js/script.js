@@ -63,80 +63,9 @@ const makeVisualization = (error, terror, migrations) => {
 
     const data_map = getTerrorData(currentYear);
 
-    /***************************
-     * Preprocess Migrations
-     ***************************/
-     console.log('Migrations: ', migrations);
-     /* migrations.json should have the following structure: */
-     // migrations_t = {
-     //      1995: [
-     //          {
-     //              destination: {
-     //                  country: "Sudan",
-     //                  latitude: 15.58807823,
-     //                  longitude: 32.53417924,
-     //              },
-     //              immigrants: [
-     //                  {
-     //                      latitude: 14.60415895,
-     //                      longitude: 120.98221720000001,
-     //                      country: "Philippines",
-     //                      nMigrants: 192423
-     //                  },
-     //                  {
-     //                      latitude: 43.69997988,
-     //                      longitude: -79.42002079,
-     //                      country: "Canada",
-     //                      nMigrants: 2034033
-     //                  }
-     //              ]
-     //          },
-     //          {
-     //              destination: {
-     //                  country: "India",
-     //                  latitude: 22.4949693,
-     //                  longitude: 88.32467566,
-     //              },
-     //              immigrants: [
-     //                  {
-     //                      latitude: 14.60415895,
-     //                      longitude: 120.98221720000001,
-     //                      country: "Philippines",
-     //                      nMigrants: 192423
-     //                  },
-     //                  {
-     //                      latitude: 43.69997988,
-     //                      longitude: -79.42002079,
-     //                      country: "Canada",
-     //                      nMigrants: 234033
-     //                  }
-     //              ]
-     //          }
-     //      ],
-     //      2000: {
-     //          destination: {
-     //              country: "Sudan",
-     //              latitude: 15.58807823,
-     //              longitude: 32.53417924,
-     //          },
-     //          immigrants: [
-     //              {
-     //                  latitude: 14.60415895,
-     //                  longitude: 120.98221720000001,
-     //                  country: "Philippines",
-     //                  nMigrants: 192423
-     //              },
-     //              {
-     //                  latitude: 43.69997988,
-     //                  longitude: -79.42002079,
-     //                  country: "Canada",
-     //                  nMigrants: 234033
-     //              }
-     //          ]
-     //      }
-     // };
 
-    console.log("New migrations: ", migrations);
+
+
     const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
     console.log("Migrations current year:", migrationsCurrentYear);
 
@@ -144,10 +73,51 @@ const makeVisualization = (error, terror, migrations) => {
         .map(k => migrationsCurrentYear[k].map(m => m.migrants)));
     const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
     const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
+
     const strokeWidthScale = d3.scale.linear()
         .domain([minMigrationValue, maxMigrationValue])
         .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
 
+    /***************************
+     *  Migrations
+     ***************************/
+    const getMigrationFlows = country => {
+        // get all origin coordinates corresponding to migration flows
+        const migration = migrationsCurrentYear[country] || null;
+
+        const flows = migration ? migration.map(i => {
+            return {
+                origin: {
+                    latitude: i.origin.latitude,
+                    longitude: i.origin.longitude
+                },
+                destination: {
+                    latitude: i.destination.latitude,
+                    longitude: i.destination.longitude
+                },
+                    strokeWidth: strokeWidthScale(i.migrants)
+                };
+            })
+            : [];
+
+        const sortMigrations = (a, b) => b.strokeWidth - a.strokeWidth;
+        flows.sort(sortMigrations);
+
+        return flows.slice(0, MAX_MIGRATIONS);
+    };
+
+
+    const drawMigrationArcs = country => {
+      console.log('Clicked country:', country);
+      const flows = getMigrationFlows(country);
+
+      map.arc(flows, {
+          strokeWidth: 2,
+          greatArc: true,
+          popupOnHover: true, // True to show the popup while hovering
+          highlightOnHover: true,
+      });
+    }
 
      /***************************
       * Visualize the data map
@@ -198,6 +168,15 @@ const makeVisualization = (error, terror, migrations) => {
         d3.select("#headline").text(headline + d3.select("#year").node().value);
         const data_map = getTerrorData(currentYear);
         map.updateChoropleth(data_map);
+
+        // const flows_update = getMigrationFlows(country);
+        //
+        // map.arc(flows_update, {
+        //     strokeWidth: 2,
+        //     greatArc: true,
+        //     popupOnHover: true, // True to show the popup while hovering
+        //     highlightOnHover: true,
+        // });
     }
 
     // slider
@@ -215,49 +194,8 @@ const makeVisualization = (error, terror, migrations) => {
         updateVisualization(+this.value);
     });
 
-    const getMigrationFlows = country => {
-        // get all origin coordinates corresponding to migration flows
-        const migration = migrationsCurrentYear[country] || null;
-
-        const flows = migration ? migration.map(i => {
-            // console.log('Migration:', i);
-            return {
-                origin: {
-                    latitude: i.origin.latitude,
-                    longitude: i.origin.longitude
-                },
-                destination: {
-                    latitude: i.destination.latitude,
-                    longitude: i.destination.longitude
-                },
-                    strokeWidth: strokeWidthScale(i.migrants)
-                };
-            })
-            : [];
-
-        const sortMigrations = (a, b) => b.strokeWidth - a.strokeWidth;
-        flows.sort(sortMigrations);
-
-        // console.log('Flows:', flows.slice(0, MAX_MIGRATIONS));
-
-        return flows.slice(0, MAX_MIGRATIONS);
-    };
 
 
-    const drawMigrationArcs = country => {
-      console.log('Clicked country:', country);
-      const flows = getMigrationFlows(country);
-
-      map.arc(flows, {
-          strokeWidth: 2,
-          greatArc: true,
-          popupOnHover: true, // True to show the popup while hovering
-          highlightOnHover: true,
-      });
-    }
-
-    // test migration arcs
-    // drawMigrationArcs('India');
 
     // TODO: add legend
 
