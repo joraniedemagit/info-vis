@@ -20,7 +20,7 @@ let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
 
 const makeVisualization = (error, terror, migrations) => {
-    // if (error) throw error;
+    if (error) throw error;
 
     /***************************
      * Preprocess Terrorism
