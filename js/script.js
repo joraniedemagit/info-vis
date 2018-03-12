@@ -6,8 +6,13 @@
  */
 
 // Settings
-let currentYear = 1995;
+const MIN_STROKE_WIDTH = 1;
+const MAX_STROKE_WIDTH = 10;
+const MIN_COLOR = "#EFEFFF";
+const MAX_COLOR = "#02386F";
 
+// Parameters
+let currentYear = 1995;
 
 const makeVisualization = (error, terror, migrations) => {
     // if (error) throw error;
@@ -40,7 +45,7 @@ const makeVisualization = (error, terror, migrations) => {
     const colorScale = d3.scale
       .linear()
       .domain([minValue, maxValue])
-      .range(["#EFEFFF", "#02386F"]); // blue color
+      .range([MIN_COLOR, MAX_COLOR]);
 
     Object.keys(data_map).forEach( key => {
       const value = data_map[key]["numberOfKills"];
@@ -121,10 +126,14 @@ const makeVisualization = (error, terror, migrations) => {
      };
 
      console.log("New migrations: ", migrations);
-
      const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
      console.log("Migrations current year:", migrationsCurrentYear);
-
+     const onlyMigrationValues = [].concat.apply([], migrationsCurrentYear.map( m => m.immigrants.map(i => i.nMigrants)));
+     const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
+     const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
+     const strokeWidthScale = d3.scale.linear()
+        .domain([minMigrationValue, maxMigrationValue])
+        .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
 
      /***************************
       * Visualize the data map
@@ -186,7 +195,7 @@ const makeVisualization = (error, terror, migrations) => {
                           latitude: migration.destination.latitude,
                           longitude: migration.destination.longitude
                       },
-                      strokeWidth: i.nMigrants / 100000
+                      strokeWidth: strokeWidthScale(i.nMigrants)
                   };
               })
             : [];
