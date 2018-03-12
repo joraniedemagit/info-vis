@@ -319,6 +319,6 @@ const makeVisualization = (error, terror, migrations) => {
 
 
 d3.queue()
-    .defer(d3.json, "data/terror.json")
+    .defer(d3.json, "data/terror-min.json")
     .defer(d3.json, "data/migrations.json")
     .await(makeVisualization);
