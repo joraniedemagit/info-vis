@@ -19,6 +19,12 @@ const MAX_MIGRATIONS = 10;
 let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
 
+// let minMigrationValue Math.min.apply(null, onlyMigrationValues);
+// let maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
+let strokeWidthScale = d3.scale.linear();
+    // .domain([minMigrationValue, maxMigrationValue])
+    // .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
+
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
 
@@ -63,24 +69,25 @@ const makeVisualization = (error, terror, migrations) => {
 
     const data_map = getTerrorData(currentYear);
 
-
-
-
-    const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
-    console.log("Migrations current year:", migrationsCurrentYear);
-
-    const onlyMigrationValues = [].concat.apply([], Object.keys(migrationsCurrentYear)
-        .map(k => migrationsCurrentYear[k].map(m => m.migrants)));
-    const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
-    const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
-
-    const strokeWidthScale = d3.scale.linear()
-        .domain([minMigrationValue, maxMigrationValue])
-        .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
-
     /***************************
      *  Migrations
      ***************************/
+    const getMigrationData = (year) => {
+        const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
+        console.log("Migrations current year:", migrationsCurrentYear);
+
+        const onlyMigrationValues = [].concat.apply([], Object.keys(migrationsCurrentYear)
+            .map(k => migrationsCurrentYear[k].map(m => m.migrants)));
+        const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
+        const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
+        strokeWidthScale
+            .domain([minMigrationValue, maxMigrationValue])
+            .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
+
+        return migrationsCurrentYear;
+    }
+    let migrationsCurrentYear = getMigrationData(currentYear);
+
     const getMigrationFlows = country => {
         // get all origin coordinates corresponding to migration flows
         const migration = migrationsCurrentYear[country] || null;
@@ -108,15 +115,15 @@ const makeVisualization = (error, terror, migrations) => {
 
 
     const drawMigrationArcs = country => {
-      console.log('Clicked country:', country);
-      const flows = getMigrationFlows(country);
+        console.log('Clicked country:', country);
+        const flows = getMigrationFlows(country);
 
-      map.arc(flows, {
-          strokeWidth: 2,
-          greatArc: true,
-          popupOnHover: true, // True to show the popup while hovering
-          highlightOnHover: true,
-      });
+        map.arc(flows, {
+            strokeWidth: 2,
+            greatArc: true,
+            popupOnHover: true, // True to show the popup while hovering
+            highlightOnHover: true,
+        });
     }
 
      /***************************
@@ -168,6 +175,11 @@ const makeVisualization = (error, terror, migrations) => {
         d3.select("#headline").text(headline + d3.select("#year").node().value);
         const data_map = getTerrorData(currentYear);
         map.updateChoropleth(data_map);
+
+        map.arc([]);
+
+        migrationsCurrentYear = getMigrationData(currentYear);
+
 
         // const flows_update = getMigrationFlows(country);
         //
