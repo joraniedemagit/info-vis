@@ -71,7 +71,7 @@ const makeVisualization = (error, terror, migrations) => {
                           latitude: 43.69997988,
                           longitude: -79.42002079,
                           country: "Canada",
-                          nMigrants: 234033
+                          nMigrants: 2034033
                       }
                   ]
               },
@@ -185,7 +185,8 @@ const makeVisualization = (error, terror, migrations) => {
                       destination: {
                           latitude: migration.destination.latitude,
                           longitude: migration.destination.longitude
-                      }
+                      },
+                      strokeWidth: i.nMigrants / 100000
                   };
               })
             : [];
