@@ -1,0 +1,2 @@
+data/globalterrorismdb_0617dist.csv filter=lfs diff=lfs merge=lfs -text
+data/terror.json filter=lfs diff=lfs merge=lfs -text
