@@ -10,7 +10,7 @@ let currentYear = 1995;
 
 
 const makeVisualization = (error, terror, migrations) => {
-    if (error) throw error;
+    // if (error) throw error;
 
     /***************************
      * Preprocess Terrorism
