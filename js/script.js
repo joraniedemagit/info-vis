@@ -13,6 +13,7 @@ const MAX_COLOR = "#02386F";
 const MIN_YEAR = 1995;
 const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
+const MAX_MIGRATIONS = 10;
 
 // Parameters
 let currentYear = MIN_YEAR;
@@ -67,83 +68,86 @@ const makeVisualization = (error, terror, migrations) => {
      ***************************/
      console.log('Migrations: ', migrations);
      /* migrations.json should have the following structure: */
-     migrations = {
-          1995: [
-              {
-                  destination: {
-                      country: "Sudan",
-                      latitude: 15.58807823,
-                      longitude: 32.53417924,
-                  },
-                  immigrants: [
-                      {
-                          latitude: 14.60415895,
-                          longitude: 120.98221720000001,
-                          country: "Philippines",
-                          nMigrants: 192423
-                      },
-                      {
-                          latitude: 43.69997988,
-                          longitude: -79.42002079,
-                          country: "Canada",
-                          nMigrants: 2034033
-                      }
-                  ]
-              },
-              {
-                  destination: {
-                      country: "India",
-                      latitude: 22.4949693,
-                      longitude: 88.32467566,
-                  },
-                  immigrants: [
-                      {
-                          latitude: 14.60415895,
-                          longitude: 120.98221720000001,
-                          country: "Philippines",
-                          nMigrants: 192423
-                      },
-                      {
-                          latitude: 43.69997988,
-                          longitude: -79.42002079,
-                          country: "Canada",
-                          nMigrants: 234033
-                      }
-                  ]
-              }
-          ],
-          2000: {
-              destination: {
-                  country: "Sudan",
-                  latitude: 15.58807823,
-                  longitude: 32.53417924,
-              },
-              immigrants: [
-                  {
-                      latitude: 14.60415895,
-                      longitude: 120.98221720000001,
-                      country: "Philippines",
-                      nMigrants: 192423
-                  },
-                  {
-                      latitude: 43.69997988,
-                      longitude: -79.42002079,
-                      country: "Canada",
-                      nMigrants: 234033
-                  }
-              ]
-          }
-     };
+     // migrations_t = {
+     //      1995: [
+     //          {
+     //              destination: {
+     //                  country: "Sudan",
+     //                  latitude: 15.58807823,
+     //                  longitude: 32.53417924,
+     //              },
+     //              immigrants: [
+     //                  {
+     //                      latitude: 14.60415895,
+     //                      longitude: 120.98221720000001,
+     //                      country: "Philippines",
+     //                      nMigrants: 192423
+     //                  },
+     //                  {
+     //                      latitude: 43.69997988,
+     //                      longitude: -79.42002079,
+     //                      country: "Canada",
+     //                      nMigrants: 2034033
+     //                  }
+     //              ]
+     //          },
+     //          {
+     //              destination: {
+     //                  country: "India",
+     //                  latitude: 22.4949693,
+     //                  longitude: 88.32467566,
+     //              },
+     //              immigrants: [
+     //                  {
+     //                      latitude: 14.60415895,
+     //                      longitude: 120.98221720000001,
+     //                      country: "Philippines",
+     //                      nMigrants: 192423
+     //                  },
+     //                  {
+     //                      latitude: 43.69997988,
+     //                      longitude: -79.42002079,
+     //                      country: "Canada",
+     //                      nMigrants: 234033
+     //                  }
+     //              ]
+     //          }
+     //      ],
+     //      2000: {
+     //          destination: {
+     //              country: "Sudan",
+     //              latitude: 15.58807823,
+     //              longitude: 32.53417924,
+     //          },
+     //          immigrants: [
+     //              {
+     //                  latitude: 14.60415895,
+     //                  longitude: 120.98221720000001,
+     //                  country: "Philippines",
+     //                  nMigrants: 192423
+     //              },
+     //              {
+     //                  latitude: 43.69997988,
+     //                  longitude: -79.42002079,
+     //                  country: "Canada",
+     //                  nMigrants: 234033
+     //              }
+     //          ]
+     //      }
+     // };
 
-     console.log("New migrations: ", migrations);
-     const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
-     console.log("Migrations current year:", migrationsCurrentYear);
-     const onlyMigrationValues = [].concat.apply([], migrationsCurrentYear.map( m => m.immigrants.map(i => i.nMigrants)));
-     const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
-     const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
-     const strokeWidthScale = d3.scale.linear()
+    console.log("New migrations: ", migrations);
+    const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
+    console.log("Migrations current year:", migrationsCurrentYear);
+
+    const onlyMigrationValues = [].concat.apply([], Object.keys(migrationsCurrentYear)
+        .map(k => migrationsCurrentYear[k].map(m => m.migrants)));
+    const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
+    const maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
+    const strokeWidthScale = d3.scale.linear()
         .domain([minMigrationValue, maxMigrationValue])
         .range([MIN_STROKE_WIDTH, MAX_STROKE_WIDTH]);
+
 
      /***************************
       * Visualize the data map
@@ -213,28 +217,30 @@ const makeVisualization = (error, terror, migrations) => {
 
     const getMigrationFlows = country => {
         // get all origin coordinates corresponding to migration flows
-        const migration = migrationsCurrentYear.filter(
-            m => m.destination.country == country
-        )[0];
+        const migration = migrationsCurrentYear[country] || null;
 
-        const flows = migration
-            ? migration.immigrants.map(i => {
-                  return {
-                      origin: {
-                          latitude: i.latitude,
-                          longitude: i.longitude
-                      },
-                      destination: {
-                          latitude: migration.destination.latitude,
-                          longitude: migration.destination.longitude
-                      },
-                      strokeWidth: strokeWidthScale(i.nMigrants)
-                  };
-              })
+        const flows = migration ? migration.map(i => {
+            // console.log('Migration:', i);
+            return {
+                origin: {
+                    latitude: i.origin.latitude,
+                    longitude: i.origin.longitude
+                },
+                destination: {
+                    latitude: i.destination.latitude,
+                    longitude: i.destination.longitude
+                },
+                    strokeWidth: strokeWidthScale(i.migrants)
+                };
+            })
             : [];
 
-        console.log('Flows:', flows);
-        return flows;
+        const sortMigrations = (a, b) => b.strokeWidth - a.strokeWidth;
+        flows.sort(sortMigrations);
+
+        // console.log('Flows:', flows.slice(0, MAX_MIGRATIONS));
+
+        return flows.slice(0, MAX_MIGRATIONS);
     };
 
 
@@ -251,7 +257,7 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     // test migration arcs
-    drawMigrationArcs('India');
+    // drawMigrationArcs('India');
 
     // TODO: add legend
 
@@ -260,5 +266,5 @@ const makeVisualization = (error, terror, migrations) => {
 
 d3.queue()
     .defer(d3.json, "data/terror-min.json")
-    .defer(d3.json, "data/migrations.json")
+    .defer(d3.json, "data/migrations3.json")
     .await(makeVisualization);
