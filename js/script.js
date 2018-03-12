@@ -13,7 +13,7 @@ const MAX_COLOR = "#02386F";
 const MAX_MIGRATIONS = 10;
 
 // Parameters
-let currentYear = 1995;
+let currentYear = 2010;
 
 const makeVisualization = (error, terror, migrations) => {
     // if (error) throw error;
@@ -58,73 +58,73 @@ const makeVisualization = (error, terror, migrations) => {
      ***************************/
      console.log('Migrations: ', migrations);
      /* migrations.json should have the following structure: */
-     migrations_t = {
-          1995: [
-              {
-                  destination: {
-                      country: "Sudan",
-                      latitude: 15.58807823,
-                      longitude: 32.53417924,
-                  },
-                  immigrants: [
-                      {
-                          latitude: 14.60415895,
-                          longitude: 120.98221720000001,
-                          country: "Philippines",
-                          nMigrants: 192423
-                      },
-                      {
-                          latitude: 43.69997988,
-                          longitude: -79.42002079,
-                          country: "Canada",
-                          nMigrants: 2034033
-                      }
-                  ]
-              },
-              {
-                  destination: {
-                      country: "India",
-                      latitude: 22.4949693,
-                      longitude: 88.32467566,
-                  },
-                  immigrants: [
-                      {
-                          latitude: 14.60415895,
-                          longitude: 120.98221720000001,
-                          country: "Philippines",
-                          nMigrants: 192423
-                      },
-                      {
-                          latitude: 43.69997988,
-                          longitude: -79.42002079,
-                          country: "Canada",
-                          nMigrants: 234033
-                      }
-                  ]
-              }
-          ],
-          2000: {
-              destination: {
-                  country: "Sudan",
-                  latitude: 15.58807823,
-                  longitude: 32.53417924,
-              },
-              immigrants: [
-                  {
-                      latitude: 14.60415895,
-                      longitude: 120.98221720000001,
-                      country: "Philippines",
-                      nMigrants: 192423
-                  },
-                  {
-                      latitude: 43.69997988,
-                      longitude: -79.42002079,
-                      country: "Canada",
-                      nMigrants: 234033
-                  }
-              ]
-          }
-     };
+     // migrations_t = {
+     //      1995: [
+     //          {
+     //              destination: {
+     //                  country: "Sudan",
+     //                  latitude: 15.58807823,
+     //                  longitude: 32.53417924,
+     //              },
+     //              immigrants: [
+     //                  {
+     //                      latitude: 14.60415895,
+     //                      longitude: 120.98221720000001,
+     //                      country: "Philippines",
+     //                      nMigrants: 192423
+     //                  },
+     //                  {
+     //                      latitude: 43.69997988,
+     //                      longitude: -79.42002079,
+     //                      country: "Canada",
+     //                      nMigrants: 2034033
+     //                  }
+     //              ]
+     //          },
+     //          {
+     //              destination: {
+     //                  country: "India",
+     //                  latitude: 22.4949693,
+     //                  longitude: 88.32467566,
+     //              },
+     //              immigrants: [
+     //                  {
+     //                      latitude: 14.60415895,
+     //                      longitude: 120.98221720000001,
+     //                      country: "Philippines",
+     //                      nMigrants: 192423
+     //                  },
+     //                  {
+     //                      latitude: 43.69997988,
+     //                      longitude: -79.42002079,
+     //                      country: "Canada",
+     //                      nMigrants: 234033
+     //                  }
+     //              ]
+     //          }
+     //      ],
+     //      2000: {
+     //          destination: {
+     //              country: "Sudan",
+     //              latitude: 15.58807823,
+     //              longitude: 32.53417924,
+     //          },
+     //          immigrants: [
+     //              {
+     //                  latitude: 14.60415895,
+     //                  longitude: 120.98221720000001,
+     //                  country: "Philippines",
+     //                  nMigrants: 192423
+     //              },
+     //              {
+     //                  latitude: 43.69997988,
+     //                  longitude: -79.42002079,
+     //                  country: "Canada",
+     //                  nMigrants: 234033
+     //              }
+     //          ]
+     //      }
+     // };
 
     console.log("New migrations: ", migrations);
     const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
