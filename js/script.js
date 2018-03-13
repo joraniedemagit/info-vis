@@ -19,6 +19,7 @@ const MAX_MIGRATIONS = 10;
 // Parameters
 let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
+let activeCountry = null;
 
 // let minMigrationValue Math.min.apply(null, onlyMigrationValues);
 // let maxMigrationValue = Math.max.apply(null, onlyMigrationValues);
@@ -143,7 +144,7 @@ const makeVisualization = (error, terror, migrations) => {
         geographyConfig: {
             highlightBorderColor: "#B7B7B7",
             highlightBorderWidth: 2,
-            highlightOnHover: false,
+            highlightOnHover: true,
             // don't change color on mouse hover
             highlightFillColor: function(geo) {
                 return geo["fillColor"] || "#F5F5F5";
@@ -162,8 +163,20 @@ const makeVisualization = (error, terror, migrations) => {
             }
         },
         done: datamap => {
+            // action when country is clicked
             datamap.svg.selectAll(".datamaps-subunit").on("click", geography => {
-                drawMigrationArcs(geography.properties.name);
+                const clickedCountry = geography.properties.name;
+                activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
+                if (activeCountry) {
+                    // draw arcs to active country
+                    drawMigrationArcs(geography.properties.name);
+                }
+                else {
+                    // hide arcs
+                    map.arc([]);
+                }
+                // selectedCountry = geography.properties.name;
+
                 // active color to clicked country
                 /*
                 const data_map = getTerrorData(currentYear);
@@ -197,20 +210,8 @@ const makeVisualization = (error, terror, migrations) => {
         d3.select("#headline").text(headline + d3.select("#year").node().value);
         const data_map = getTerrorData(currentYear);
         map.updateChoropleth(data_map);
-
         map.arc([]);
-
         migrationsCurrentYear = getMigrationData(currentYear);
-
-
-        // const flows_update = getMigrationFlows(country);
-        //
-        // map.arc(flows_update, {
-        //     strokeWidth: 2,
-        //     greatArc: true,
-        //     popupOnHover: true, // True to show the popup while hovering
-        //     highlightOnHover: true,
-        // });
     }
 
     // slider
