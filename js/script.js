@@ -30,12 +30,10 @@ const MULTI_LINE_CHART_TERROR_COLOR = COLOR_RED;
 let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
 let activeCountry = null;
-
 let strokeWidthScale = d3.scale.linear();
 
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
-
     /***************************
      * Preprocess Terrorism
      ***************************/
@@ -45,6 +43,12 @@ const makeVisualization = (error, terror, migrations) => {
     const getTerrorData = (year) => {
         const terrorCurrentYear = terror.filter( t => t.Year == currentYear);
         console.log('Terror current year:', terrorCurrentYear);
+        return terrorCurrentYear;
+    }
+
+    let terrorCurrentYear = getTerrorData(currentYear);
+
+    const createDataMap = (terrorCurrentYear) => {
         let data_map = {};
         terrorCurrentYear.forEach( t => {
           if (t.Killed) {
@@ -75,7 +79,7 @@ const makeVisualization = (error, terror, migrations) => {
         return data_map;
     }
 
-    const data_map = getTerrorData(currentYear);
+    const data_map = createDataMap(terrorCurrentYear);
 
     /***************************
      *  Migrations
@@ -121,7 +125,6 @@ const makeVisualization = (error, terror, migrations) => {
         return flows.slice(0, MAX_MIGRATIONS);
     };
 
-
     const drawMigrationArcs = country => {
         console.log('Clicked country:', country);
         const flows = getMigrationFlows(country);
@@ -141,6 +144,29 @@ const makeVisualization = (error, terror, migrations) => {
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
+
+    const onCountryClick = (geography) => {
+        const clickedCountry = geography.properties.name;
+        activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
+        if (activeCountry) {
+            // draw arcs to active country
+            const countryName = geography.properties.name;
+            drawMigrationArcs(countryName);
+            const numberOfKills = data_map[geography.id]
+                ? data_map[geography.id]["numberOfKills"]
+                  ? data_map[geography.id]["numberOfKills"]
+                  : 0
+                : 0;
+            const migrationsCountry = migrationsCurrentYear[countryName]
+            updateSidebar(countryName, numberOfKills, migrationsCountry);
+        }
+        else {
+            // hide arcs
+            map.arc([]);
+            updateSidebar(activeCountry);
+        }
+    }
+
     const map = new Datamap({
         element: document.getElementById("viz-container"),
         data: data_map,
@@ -170,36 +196,7 @@ const makeVisualization = (error, terror, migrations) => {
         },
         done: datamap => {
             // action when country is clicked
-            datamap.svg.selectAll(".datamaps-subunit").on("click", geography => {
-                const clickedCountry = geography.properties.name;
-                activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
-                if (activeCountry) {
-                    // draw arcs to active country
-                    drawMigrationArcs(geography.properties.name);
-                    // draw multi line chart of active country
-                    drawMultiLineChart(geography.properties.name);
-                }
-                else {
-                    // hide arcs
-                    map.arc([]);
-                }
-                // selectedCountry = geography.properties.name;
-
-                // active color to clicked country
-                /*
-                const data_map = getTerrorData(currentYear);
-                const countryId = geography.id;
-                const newDataMap = {
-                    ...data_map,
-                    [countryId]: {
-                        ...data_map[countryId],
-                        fillColor: ACTIVE_COLOR
-                    }
-                };
-                console.log("newDataMap:", newDataMap);
-                map.updateChoropleth(newDataMap);
-                */
-            });
+            datamap.svg.selectAll(".datamaps-subunit").on("click", onCountryClick);
         }
     });
 
@@ -216,7 +213,8 @@ const makeVisualization = (error, terror, migrations) => {
     const updateVisualization = (year) => {
         currentYear = year;
         d3.select("#headline").text(headline + d3.select("#year").node().value);
-        const data_map = getTerrorData(currentYear);
+        terrorCurrentYear = getTerrorData(currentYear);
+        const data_map = createDataMap(terrorCurrentYear);
         map.updateChoropleth(data_map);
         map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
@@ -237,6 +235,8 @@ const makeVisualization = (error, terror, migrations) => {
         updateVisualization(+this.value);
     });
 
+    // update Sidebar
+    updateSidebar(activeCountry);
 
     /******************************************************
      * Draw Migrations/Terrorism multi line chart

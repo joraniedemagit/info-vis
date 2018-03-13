@@ -11,17 +11,24 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 100;
 }
 
+h2 {
+    font-size: 22px;
+}
+
 #titleText {
   text-align: center;
 }
 
-#viz-container {
-  border:1px solid #F5F5F5;
-  height: 600px;
+.border-col {
+    border:1px solid #F5F5F5;
 }
 
-#sidebox {
-    border:1px solid #F5F5F5;
+#viz-container {
+  height: 600px;
+  overflow: hidden;
+}
+
+#sidebar {
     height: 600px;
 }
 
