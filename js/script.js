@@ -10,6 +10,7 @@ const MIN_STROKE_WIDTH = 1;
 const MAX_STROKE_WIDTH = 10;
 const MIN_COLOR = "#EFEFFF";
 const MAX_COLOR = "#02386F";
+// const ACTIVE_COLOR = 'red';
 const MIN_YEAR = 1995;
 const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
@@ -115,9 +116,10 @@ const makeVisualization = (error, terror, migrations) => {
 
         map.arc(flows, {
             strokeWidth: 2,
-            greatArc: true,
             popupOnHover: true, // True to show the popup while hovering
             highlightOnHover: true,
+            arcSharpness: 0.5,
+            animationSpeed: 1000
         });
     }
 
@@ -128,33 +130,65 @@ const makeVisualization = (error, terror, migrations) => {
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
     const map = new Datamap({
-      element: document.getElementById("container"),
-      data: data_map,
-      fills: {
-          defaultFill: "#EFEFFF"
-      },
-      geographyConfig: {
-          highlightBorderColor: '#B7B7B7',
-          highlightBorderWidth: 2,
-          // don't change color on mouse hover
-          highlightFillColor: function(geo) {
-              return geo['fillColor'] || '#F5F5F5';
-          },
-          popupTemplate: (geography, data) => {
-              return [
-                  '<div class="hoverinfo">',
-                  '<strong>', geography.properties.name, '</strong>',
-                  '<br>Killed: <strong>', data.numberOfKills, '</strong>',
-                  '</div>'
-              ].join('');
-          }
-      },
-      done: datamap => {
-          datamap.svg.selectAll('.datamaps-subunit').on('click', geography => {
-              drawMigrationArcs(geography.properties.name);
-          });
-      }
+        element: document.getElementById("container"),
+        data: data_map,
+        fills: {
+            defaultFill: "#EFEFFF"
+        },
+        geographyConfig: {
+            highlightBorderColor: "#B7B7B7",
+            highlightBorderWidth: 2,
+            highlightOnHover: true,
+            // don't change color on mouse hover
+            highlightFillColor: function(geo) {
+                return geo["fillColor"] || "#F5F5F5";
+            },
+            popupTemplate: (geography, data) => {
+                return [
+                    '<div class="hoverinfo">',
+                    "<strong>",
+                    geography.properties.name,
+                    "</strong>",
+                    "<br>Killed: <strong>",
+                    data.numberOfKills,
+                    "</strong>",
+                    "</div>"
+                ].join("");
+            }
+        },
+        done: datamap => {
+            // action when country is clicked
+            datamap.svg.selectAll(".datamaps-subunit").on("click", geography => {
+                const clickedCountry = geography.properties.name;
+                activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
+                if (activeCountry) {
+                    // draw arcs to active country
+                    drawMigrationArcs(geography.properties.name);
+                }
+                else {
+                    // hide arcs
+                    map.arc([]);
+                }
+                // selectedCountry = geography.properties.name;
+
+                // active color to clicked country
+                /*
+                const data_map = getTerrorData(currentYear);
+                const countryId = geography.id;
+                const newDataMap = {
+                    ...data_map,
+                    [countryId]: {
+                        ...data_map[countryId],
+                        fillColor: ACTIVE_COLOR
+                    }
+                };
+                console.log("newDataMap:", newDataMap);
+                map.updateChoropleth(newDataMap);
+                */
+            });
+        }
     });
+
 
     // Draw a legend for this map
     map.legend();
@@ -170,20 +204,8 @@ const makeVisualization = (error, terror, migrations) => {
         d3.select("#headline").text(headline + d3.select("#year").node().value);
         const data_map = getTerrorData(currentYear);
         map.updateChoropleth(data_map);
-
         map.arc([]);
-
         migrationsCurrentYear = getMigrationData(currentYear);
-
-
-        // const flows_update = getMigrationFlows(country);
-        //
-        // map.arc(flows_update, {
-        //     strokeWidth: 2,
-        //     greatArc: true,
-        //     popupOnHover: true, // True to show the popup while hovering
-        //     highlightOnHover: true,
-        // });
     }
 
     // slider
