@@ -136,7 +136,7 @@ const makeVisualization = (error, terror, migrations) => {
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
     const map = new Datamap({
-        element: document.getElementById("container"),
+        element: document.getElementById("viz-container"),
         data: data_map,
         fills: {
             defaultFill: "#EFEFFF"
@@ -215,7 +215,7 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     // slider
-    d3.select('#container').insert("p", ":first-child").append("input")
+    d3.select('#viz-container').insert("p", ":first-child").append("input")
         .attr("type", "range")
         .attr("min", MIN_YEAR)
         .attr("max", MAX_YEAR)
@@ -223,7 +223,7 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("value", currentYear)
         .attr("id", "year");
 
-    d3.select("#container").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
+    d3.select("#viz-container").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
 
     d3.select("#year").on("input", function() {
         updateVisualization(+this.value);

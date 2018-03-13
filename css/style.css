@@ -15,9 +15,24 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
-#container {
-  margin:10px 10%;
+#viz-container {
   border:1px solid #F5F5F5;
-  /* background: #151514; */
   height: 600px;
+}
+
+#sidebox {
+    border:1px solid #F5F5F5;
+    height: 600px;
+}
+
+.box-shadow {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+}
+
+
+
+/* tooltip */
+.datamaps-hoverover {
+}
+.hoverinfo {
 }
