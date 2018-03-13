@@ -19,6 +19,8 @@ const MAX_MIGRATIONS = 10;
 // Parameters
 let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
+let activeCountry = null;
+
 let strokeWidthScale = d3.scale.linear();
 
 const makeVisualization = (error, terror, migrations) => {
