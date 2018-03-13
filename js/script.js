@@ -159,6 +159,9 @@ const makeVisualization = (error, terror, migrations) => {
                 : 0;
             const migrationsCountry = migrationsCurrentYear[countryName]
             updateSidebar(countryName, numberOfKills, migrationsCountry);
+
+            drawMultiLineChart(countryName);
+
         }
         else {
             // hide arcs
