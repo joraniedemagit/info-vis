@@ -16,6 +16,10 @@ const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 10;
 
+// Multi Line Chart settings
+const MULTI_LINE_CHART_WIDTH = 600;
+const MULTI_LINE_CHART_HEIGHT = 300;
+
 // Parameters
 let currentYear = MIN_YEAR;
 let headline = "Number of deaths caused by terrorism in ";
@@ -226,7 +230,28 @@ const makeVisualization = (error, terror, migrations) => {
     });
 
 
+    /******************************************************
+     * Draw Migrations/Terrorism multi line chart
+     ******************************************************/
 
+    const drawMultiLineChart = (years, migrations) => {
+        console.log(migrations);
+        console.log(years);
+
+        // define canvas
+        const svg = d3.select("#bottom-box").append("svg")
+            .attr("id", "multiLineChart")
+            .attr("width", MULTI_LINE_CHART_WIDTH)
+            .attr("height", MULTI_LINE_CHART_HEIGHT);
+
+        const xScale = d3.scale.linear().range([0, MULTI_LINE_CHART_WIDTH]).domain([years[0],years[years.length-1]]);
+
+    }
+
+    const dummy_years = [1990, 1995, 2000, 2005, 2010, 2015];
+    const dummy_migrations = [3000, 5000, 8000, 6000, 8888, 9887];
+
+    drawMultiLineChart(dummy_years, dummy_migrations);
 
     // TODO: add legend
 
