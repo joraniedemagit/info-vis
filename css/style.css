@@ -18,6 +18,7 @@ h1, h2, h3, h4, h5, h6 {
 #viz-container {
   border:1px solid #F5F5F5;
   height: 600px;
+  overflow: hidden;
 }
 
 #sidebox {
