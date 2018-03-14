@@ -157,7 +157,7 @@ const makeVisualization = (error, terror, migrations) => {
                   ? data_map[geography.id]["numberOfKills"]
                   : 0
                 : 0;
-            const migrationsCountry = migrationsCurrentYear[countryName]
+            const migrationsCountry = migrationsCurrentYear[countryName];
             updateSidebar(countryName, numberOfKills, migrationsCountry);
 
             // drawMultiLineChart(countryName);
