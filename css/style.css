@@ -15,8 +15,18 @@ h2 {
     font-size: 22px;
 }
 
+.no-padding {
+    padding: 0;
+}
+
 #titleText {
-  text-align: center;
+    text-align: center;
+    font-size: 25px;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 20px;
 }
 
 .border-col {
@@ -24,12 +34,22 @@ h2 {
 }
 
 #viz-container {
-  height: 600px;
-  overflow: hidden;
+    height: calc(100vh - 230px);
+    padding: 0px;
+    overflow: hidden;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+#viz-container svg {
+    padding-top: 50px;
+    padding-bottom: 20px;
 }
 
 #sidebar {
-    height: 600px;
+    height: 100vh;
+    padding: 20px 30px;
+    border-left: 1px solid #F5F5F5;
+    position: absolute;
 }
 
 .box-shadow {
@@ -39,9 +59,10 @@ h2 {
 
 /* multi Line Chart */
 #bottom-box {
-    margin: 10px 10%;
-    height: 350px;
-    border: 1px solid #f5f5f5;
+    margin: 0px 10%;
+    height: 100%;
+    width: 100%;
+    /* border: 1px solid #f5f5f5; */
 }
 
 #multiLineChart {
@@ -49,7 +70,8 @@ h2 {
     left: 0;
     right: 0;
     position: absolute;
-    border: 1px solid red;
+    width: 96%;
+    margin-left: 2%;
 }
 
 .axis path {

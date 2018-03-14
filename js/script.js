@@ -19,8 +19,8 @@ const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 10;
 
 // Multi Line Chart settings
-const MULTI_LINE_CHART_WIDTH = 900;
-const MULTI_LINE_CHART_HEIGHT = 300;
+const MULTI_LINE_CHART_WIDTH = document.getElementById('bottom-box').offsetWidth;
+const MULTI_LINE_CHART_HEIGHT = 220;
 const MULTI_LINE_CHART_PADDING = 50;
 const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 50}
 const MULTI_LINE_CHART_MIGRATIONS_COLOR = COLOR_BLUE;
@@ -224,7 +224,7 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     // slider
-    d3.select('#viz-container').insert("p", ":first-child").append("input")
+    d3.select('#sidebar').insert("p", ":first-child").append("input")
         .attr("type", "range")
         .attr("min", MIN_YEAR)
         .attr("max", MAX_YEAR)
@@ -232,7 +232,7 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("value", currentYear)
         .attr("id", "year");
 
-    d3.select("#viz-container").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
+    d3.select("#sidebar").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
 
     d3.select("#year").on("input", function() {
         updateVisualization(+this.value);
@@ -274,7 +274,6 @@ const makeVisualization = (error, terror, migrations) => {
         // define canvas
         const svg = d3.select("#bottom-box").append("svg")
             .attr("id", "multiLineChart")
-            .attr("width", MULTI_LINE_CHART_WIDTH)
             .attr("height", MULTI_LINE_CHART_HEIGHT);
 
         // x/y scales
@@ -285,6 +284,10 @@ const makeVisualization = (error, terror, migrations) => {
         const yScale = d3.scale.linear()
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.migrants))]);
+
+        const yScaleTerror = d3.scale.linear()
+            .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
+            .domain([0, d3.max(data.map(i => i.terror))]);
 
         // x/y axis
         const xAxis = d3.svg.axis()
@@ -316,7 +319,7 @@ const makeVisualization = (error, terror, migrations) => {
 
         const getTerrorLine = d3.svg.line()
             .x(d => xScale(d.year))
-            .y(d => yScale(d.terror))
+            .y(d => yScaleTerror(d.terror))
             .interpolate("cardinal");
 
         const lineGraphMigrations = svg.append("path")
@@ -368,6 +371,10 @@ const makeVisualization = (error, terror, migrations) => {
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.migrants))]);
 
+        const yScaleTerror = d3.scale.linear()
+            .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
+            .domain([0, d3.max(data.map(i => i.terror))]);
+
         // x/y axis
         const xAxis = d3.svg.axis()
             .scale(xScale)
@@ -393,7 +400,7 @@ const makeVisualization = (error, terror, migrations) => {
 
         const getTerrorLine = d3.svg.line()
             .x(d => xScale(d.year))
-            .y(d => yScale(d.terror))
+            .y(d => yScaleTerror(d.terror))
             .interpolate("cardinal");
 
         const lineGraphMigrations = svg.select(".migrations-line")
