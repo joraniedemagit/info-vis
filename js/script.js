@@ -19,7 +19,7 @@ const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 10;
 
 // Multi Line Chart settings
-const MULTI_LINE_CHART_WIDTH = 600;
+const MULTI_LINE_CHART_WIDTH = 900;
 const MULTI_LINE_CHART_HEIGHT = 300;
 const MULTI_LINE_CHART_PADDING = 50;
 const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 50}
@@ -316,12 +316,12 @@ const makeVisualization = (error, terror, migrations) => {
             .tickFormat(d3.format("d"));
 
         svg.append("svg:g")
-            .attr("class","axis")
+            .attr("class","axis x-axis")
             .attr("transform", "translate(0," + (MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.bottom) + ")")
             .call(xAxis);
 
         svg.append("svg:g")
-            .attr("class","axis")
+            .attr("class","axis y-axis")
             .attr("transform", "translate(" + (MULTI_LINE_CHART_MARGINS.left) + ",0)")
             .call(yAxis);
 
@@ -337,6 +337,7 @@ const makeVisualization = (error, terror, migrations) => {
             .interpolate("cardinal");
 
         const lineGraphMigrations = svg.append("path")
+            .attr("class", "migrations-line")
             .attr("d", getMigrationsLine(data))
             .attr("stroke", MULTI_LINE_CHART_MIGRATIONS_COLOR)
             .attr("stroke-width", 2)
@@ -352,6 +353,7 @@ const makeVisualization = (error, terror, migrations) => {
              .attr("stroke-dashoffset", 0);
 
         const lineGraphTerror = svg.append("path")
+            .attr("class", "terror-line")
             .attr("d", getTerrorLine(data))
             .attr("stroke", MULTI_LINE_CHART_TERROR_COLOR)
             .attr("stroke-width", 2)
