@@ -374,7 +374,7 @@ const makeVisualization = (error, terror, migrations) => {
 
     const updateMultiLineChart = (countryCode, countryName) => {
         const data = getCountryData(countryCode, countryName);
-
+        console.log('data', data);
         // define canvas
         const svg = d3.select("#multiLineChart");
 
