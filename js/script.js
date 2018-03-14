@@ -37,10 +37,7 @@ const makeVisualization = (error, terror, migrations) => {
     /***************************
      * Preprocess Terrorism
      ***************************/
-    console.log('Terror: ', terror);
-
-    const newTerror = d3
-        .nest()
+    const newTerror = d3.nest()
         .key(d => d.Year)
         .key(d => d.CountryCode)
         .rollup(v => {
@@ -56,9 +53,8 @@ const makeVisualization = (error, terror, migrations) => {
 
     console.log('newTerror', newTerror);
 
-    // Retrieve number of kills by terrorism for every country to visualize on the map
     const getTerrorData = (year) => {
-        const terrorCurrentYear = terror.filter( t => t.Year == currentYear);
+        const terrorCurrentYear = newTerror[year];
         console.log('Terror current year:', terrorCurrentYear);
         return terrorCurrentYear;
     }
@@ -67,20 +63,12 @@ const makeVisualization = (error, terror, migrations) => {
 
     const createDataMap = (terrorCurrentYear) => {
         let data_map = {};
-        terrorCurrentYear.forEach( t => {
-          if (t.Killed) {
-              data_map[t.CountryCode]
-                  ? data_map[t.CountryCode]["numberOfKills"]
-                    ? (data_map[t.CountryCode]["numberOfKills"] += t.Killed)
-                    : (data_map[t.CountryCode]["numberOfKills"] = t.Killed)
-                  : (data_map[t.CountryCode] = {
-                        numberOfKills: t.Killed
-                    });
-          } else {
-              // t.Killed == null (set to 0 in preprocessing?)
-          }
-        })
-        const onlyValues = Object.keys(data_map).map( key => data_map[key]["numberOfKills"]);
+        Object.keys(terrorCurrentYear).forEach( countryCode => {
+            data_map[countryCode] = {
+                totalKilled: terrorCurrentYear[countryCode]["totalKilled"]
+            }
+        });
+        const onlyValues = Object.keys(terrorCurrentYear).map( key => terrorCurrentYear[key]["totalKilled"]);
         const minValue = Math.min.apply(null, onlyValues);
         const maxValue = Math.max.apply(null, onlyValues);
 
@@ -90,7 +78,7 @@ const makeVisualization = (error, terror, migrations) => {
           .range([MIN_COLOR, MAX_COLOR]);
 
         Object.keys(data_map).forEach( key => {
-          const value = data_map[key]["numberOfKills"];
+          const value = data_map[key]["totalKilled"];
           data_map[key]["fillColor"] = colorScale(value);
         })
         return data_map;
@@ -160,7 +148,6 @@ const makeVisualization = (error, terror, migrations) => {
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
-
     const getCountryDataYear = (year, countryCode, countryName) => {
         const totalKilled = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["totalKilled"]
@@ -177,12 +164,15 @@ const makeVisualization = (error, terror, migrations) => {
     };
 
     const onCountryClick = (geography) => {
-        const clickedCountry = geography.properties.name;
+        const countryName = geography.properties.name;
+        const countryCode = geography.id;
+        const clickedCountry = {
+            countryName,
+            countryCode
+        };
         activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
         if (activeCountry) {
             // draw arcs to active country
-            const countryName = geography.properties.name;
-            const countryCode = geography.id;
             console.log('New active country:', countryName, countryCode);
             drawMigrationArcs(countryName);
             const countryData = getCountryDataYear(currentYear, countryCode, countryName);
@@ -218,7 +208,7 @@ const makeVisualization = (error, terror, migrations) => {
                     geography.properties.name,
                     "</strong>",
                     "<br>Killed: <strong>",
-                    data.numberOfKills,
+                    data.totalKilled,
                     "</strong>",
                     "</div>"
                 ].join("");
@@ -230,7 +220,7 @@ const makeVisualization = (error, terror, migrations) => {
         }
     });
 
-    // Draw a legend for this map
+    // TODO: add legend
     map.legend();
 
     // Make map responsive
@@ -260,8 +250,14 @@ const makeVisualization = (error, terror, migrations) => {
 
     d3.select("#sidebar").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
 
-    d3.select("#year").on("input", function() {
-        updateVisualization(+this.value);
+    // action when slider changes
+    d3.select("#year").on("input", () => {
+        const year = +d3.event.target.value;
+        updateVisualization(year);
+        if(activeCountry) {
+            const countryData = getCountryDataYear(year, activeCountry["countryCode"], activeCountry["countryName"]);
+            updateSidebar(activeCountry["countryName"], countryData['totalKilled'], countryData['sumMigrations']);
+        }
     });
 
     // update Sidebar
@@ -452,9 +448,6 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     drawMultiLineChart('DZA', 'Algeria');
-
-    // TODO: add legend
-
 }
 
 
