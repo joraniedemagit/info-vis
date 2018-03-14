@@ -19,7 +19,7 @@ const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 10;
 
 // Multi Line Chart settings
-const MULTI_LINE_CHART_WIDTH = 600;
+const MULTI_LINE_CHART_WIDTH = 900;
 const MULTI_LINE_CHART_HEIGHT = 300;
 const MULTI_LINE_CHART_PADDING = 50;
 const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 50}
@@ -160,8 +160,8 @@ const makeVisualization = (error, terror, migrations) => {
             const migrationsCountry = migrationsCurrentYear[countryName]
             updateSidebar(countryName, numberOfKills, migrationsCountry);
 
-            drawMultiLineChart(countryName);
-
+            // drawMultiLineChart(countryName);
+            updateMultiLineChart(countryName);
         }
         else {
             // hide arcs
@@ -269,8 +269,7 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     const drawMultiLineChart = country => {
-
-        data = getCountryData(country);
+        const data = getCountryData(country);
 
         // define canvas
         const svg = d3.select("#bottom-box").append("svg")
@@ -300,12 +299,12 @@ const makeVisualization = (error, terror, migrations) => {
             .tickFormat(d3.format("d"));
 
         svg.append("svg:g")
-            .attr("class","axis")
+            .attr("class","axis x-axis")
             .attr("transform", "translate(0," + (MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.bottom) + ")")
             .call(xAxis);
 
         svg.append("svg:g")
-            .attr("class","axis")
+            .attr("class","axis y-axis")
             .attr("transform", "translate(" + (MULTI_LINE_CHART_MARGINS.left) + ",0)")
             .call(yAxis);
 
@@ -321,6 +320,7 @@ const makeVisualization = (error, terror, migrations) => {
             .interpolate("cardinal");
 
         const lineGraphMigrations = svg.append("path")
+            .attr("class", "migrations-line")
             .attr("d", getMigrationsLine(data))
             .attr("stroke", MULTI_LINE_CHART_MIGRATIONS_COLOR)
             .attr("stroke-width", 2)
@@ -336,6 +336,7 @@ const makeVisualization = (error, terror, migrations) => {
              .attr("stroke-dashoffset", 0);
 
         const lineGraphTerror = svg.append("path")
+            .attr("class", "terror-line")
             .attr("d", getTerrorLine(data))
             .attr("stroke", MULTI_LINE_CHART_TERROR_COLOR)
             .attr("stroke-width", 2)
@@ -349,6 +350,82 @@ const makeVisualization = (error, terror, migrations) => {
              .duration(1000)
              .ease("cubic")
              .attr("stroke-dashoffset", 0);
+
+    }
+
+    const updateMultiLineChart = country => {
+        const data = getCountryData(country);
+
+        // define canvas
+        const svg = d3.select("#multiLineChart");
+
+        // x/y scales
+        const xScale = d3.scale.linear()
+            .range([MULTI_LINE_CHART_MARGINS.left, MULTI_LINE_CHART_WIDTH - MULTI_LINE_CHART_MARGINS.right])
+            .domain([data[0].year, data[data.length-1].year]);
+
+        const yScale = d3.scale.linear()
+            .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
+            .domain([0, d3.max(data.map(i => i.migrants))]);
+
+        // x/y axis
+        const xAxis = d3.svg.axis()
+            .scale(xScale)
+            .ticks(5)
+            .tickFormat(d3.format("d"));
+
+        const yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left")
+            .ticks(5)
+            .tickFormat(d3.format("d"));
+
+        svg.select(".x-axis")
+            .call(xAxis);
+
+        svg.select(".y-axis")
+            .call(yAxis);
+
+        const getMigrationsLine = d3.svg.line()
+            .x(d => xScale(d.year))
+            .y(d => yScale(d.migrants))
+            .interpolate("cardinal");
+
+        const getTerrorLine = d3.svg.line()
+            .x(d => xScale(d.year))
+            .y(d => yScale(d.terror))
+            .interpolate("cardinal");
+
+        const lineGraphMigrations = svg.select(".migrations-line")
+            .attr("d", getMigrationsLine(data))
+            .attr("stroke", MULTI_LINE_CHART_MIGRATIONS_COLOR)
+            .attr("stroke-width", 2)
+            .attr("fill", "none");
+
+        const lineGraphMigrationsLength = lineGraphMigrations.node().getTotalLength();
+        lineGraphMigrations
+             .attr("class", "migrations-line")
+             .attr("stroke-dasharray", lineGraphMigrationsLength + " " + lineGraphMigrationsLength)
+             .attr("stroke-dashoffset", lineGraphMigrationsLength)
+             .transition()
+             .duration(1000)
+             .ease("cubic")
+             .attr("stroke-dashoffset", 0);
+
+         const lineGraphTerror = svg.select(".terror-line")
+             .attr("d", getTerrorLine(data))
+             .attr("stroke", MULTI_LINE_CHART_TERROR_COLOR)
+             .attr("stroke-width", 2)
+             .attr("fill", "none");
+
+         const lineGraphTerrorLength = lineGraphTerror.node().getTotalLength();
+         lineGraphTerror
+              .attr("stroke-dasharray", lineGraphTerrorLength + " " + lineGraphTerrorLength)
+              .attr("stroke-dashoffset", lineGraphTerrorLength)
+              .transition()
+              .duration(1000)
+              .ease("cubic")
+              .attr("stroke-dashoffset", 0);
 
     }
 
