@@ -32,6 +32,15 @@ let headline = "Number of deaths caused by terrorism in ";
 let activeCountry = null;
 let strokeWidthScale = d3.scale.linear();
 
+const countFrequency = list => {
+    const counts = {};
+    list.forEach(l => {
+        counts[l] = counts[l] ? counts[l] + 1 : 1;
+    });
+    return counts;
+};
+countFrequency([5, 5, 5, 2, 2, 2, 2, 2, 9, 4]);
+
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
     /***************************
@@ -41,17 +50,46 @@ const makeVisualization = (error, terror, migrations) => {
         .key(d => d.Year)
         .key(d => d.CountryCode)
         .rollup(v => {
-            const list = v.map(m => ({
+            const attackTypes = countFrequency(v.map( d => d.AttackType));
+            const targetTypes = countFrequency(v.map( d => d.Target_type));
+            const listKilled = v.map(m => ({
                 killed: m.Killed !== null ? m.Killed : 0
             }));
-            const totalKilled = d3.sum(list, d => d.killed);
+            const totalKilled = d3.sum(listKilled, d => d.killed);
             return {
-                totalKilled
+                attackTypes,
+                targetTypes,
+                totalKilled,
             };
         })
         .map(terror);
 
+    // const globalTest = d3.nest()
+    //     .key(d => d.Year)
+    //     .rollup(v => {
+    //         console.log('v', v);
+    //         return v.Killed;
+    //     })
+    //     .map(terror);
+
+    //     var dataByDate = d3.nest()
+    // .key(d => d.date)
+    // .rollup(d => d3.sum(d, g => g.value))
+    // .map(points);
+
+    // console.log('globalTest', globalTest);
+        // var deptSum = d3.nest()
+        // .key(function(d) { return d.department; })
+        // .rollup(function(v) { return {
+        //     count: v.length,
+        //     total: d3.sum(d3.values(v[0].quant)),
+        //     avg: d3.mean(d3.values(v[0].quant))
+        // }; })
+        // .entries(data)
+
     console.log('newTerror', newTerror);
+    const globalTotalKilled = Object.keys(newTerror).map(year => Object.keys(newTerror[year]).map(countryCode => newTerror[year][countryCode]['totalKilled']));
+    console.log('globalTotalKilled', globalTotalKilled);
 
     const getTerrorData = (year) => {
         const terrorCurrentYear = newTerror[year];
@@ -152,6 +190,12 @@ const makeVisualization = (error, terror, migrations) => {
         const totalKilled = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["totalKilled"]
             : 0;
+        const attackTypes = newTerror[year][countryCode]
+            ? newTerror[year][countryCode]["attackTypes"]
+            : {};
+        const targetTypes = newTerror[year][countryCode]
+            ? newTerror[year][countryCode]["targetTypes"]
+            : {};
         const migrationsCountry = migrations[year][countryName];
         const sumMigrations = migrationsCountry
             ? migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 )
@@ -159,7 +203,9 @@ const makeVisualization = (error, terror, migrations) => {
         return ({
             year,
             totalKilled,
-            sumMigrations
+            sumMigrations,
+            attackTypes,
+            targetTypes
         });
     };
 
@@ -177,7 +223,7 @@ const makeVisualization = (error, terror, migrations) => {
             drawMigrationArcs(countryName);
             const countryData = getCountryDataYear(currentYear, countryCode, countryName);
             console.log('getCountryDataYear', countryData);
-            updateSidebar(countryName, countryData['totalKilled'], countryData['sumMigrations']);
+            updateSidebar(countryName, countryData['totalKilled'], countryData['sumMigrations'], countryData['targetTypes'], countryData['attackTypes']);
             updateMultiLineChart(countryCode, countryName);
         }
         else {
