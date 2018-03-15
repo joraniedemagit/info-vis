@@ -216,7 +216,7 @@ const makeVisualization = (error, terror, migrations) => {
             countryName,
             countryCode
         };
-        activeCountry = activeCountry !== clickedCountry ? clickedCountry : null;
+        activeCountry = (JSON.stringify(activeCountry) !== JSON.stringify(clickedCountry)) ? clickedCountry : null;
         if (activeCountry) {
             // draw arcs to active country
             console.log('New active country:', countryName, countryCode);
