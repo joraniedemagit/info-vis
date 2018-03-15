@@ -19,12 +19,12 @@ const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 10;
 
 // Multi Line Chart settings
-const MULTI_LINE_CHART_WIDTH = document.getElementById('bottom-box').offsetWidth;
 const MULTI_LINE_CHART_HEIGHT = 220;
 const MULTI_LINE_CHART_PADDING = 50;
-const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 50}
+const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 70}
+const MULTI_LINE_CHART_WIDTH = document.getElementById('bottom-box').offsetWidth;
 const MULTI_LINE_CHART_MIGRATIONS_COLOR = COLOR_BLUE;
-const MULTI_LINE_CHART_TERROR_COLOR = COLOR_RED;
+const MULTI_LINE_CHART_KILLS_COLOR = COLOR_RED;
 
 // Parameters
 let currentYear = MIN_YEAR;
@@ -127,7 +127,7 @@ const makeVisualization = (error, terror, migrations) => {
     /***************************
      *  Migrations
      ***************************/
-     console.log('Migrations: ', migrations);
+    console.log('Migrations: ', migrations);
     const getMigrationData = (year) => {
         const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
         console.log("Migrations current year:", migrationsCurrentYear);
@@ -186,9 +186,9 @@ const makeVisualization = (error, terror, migrations) => {
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
-    const getCountryDataYear = (year, countryCode, countryName) => {
-        const totalKilled = newTerror[year][countryCode]
-            ? newTerror[year][countryCode]["totalKilled"]
+    const getCountryDataYear = (year, activeCountry) => {
+        const totalKilled = newTerror[year][activeCountry.countryCode]
+            ? newTerror[year][activeCountry.countryCode]["totalKilled"]
             : 0;
         const attackTypes = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["attackTypes"]
@@ -221,7 +221,7 @@ const makeVisualization = (error, terror, migrations) => {
             // draw arcs to active country
             console.log('New active country:', countryName, countryCode);
             drawMigrationArcs(countryName);
-            const countryData = getCountryDataYear(currentYear, countryCode, countryName);
+            const countryData = getCountryDataYear(currentYear, activeCountry);
             console.log('getCountryDataYear', countryData);
             updateSidebar(countryName, countryData['totalKilled'], countryData['sumMigrations'], countryData['targetTypes'], countryData['attackTypes']);
             updateMultiLineChart(countryCode, countryName);
@@ -283,6 +283,7 @@ const makeVisualization = (error, terror, migrations) => {
         map.updateChoropleth(data_map);
         map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
+        updateMultiLineChartDot(activeCountry);
     }
 
     // slider
@@ -301,7 +302,7 @@ const makeVisualization = (error, terror, migrations) => {
         const year = +d3.event.target.value;
         updateVisualization(year);
         if(activeCountry) {
-            const countryData = getCountryDataYear(year, activeCountry["countryCode"], activeCountry["countryName"]);
+            const countryData = getCountryDataYear(year, activeCountry);
             updateSidebar(activeCountry["countryName"], countryData['totalKilled'], countryData['sumMigrations']);
         }
     });
@@ -312,23 +313,13 @@ const makeVisualization = (error, terror, migrations) => {
     /******************************************************
      * Draw Migrations/Terrorism multi line chart
      ******************************************************/
-
-     const dummy_data = [
-         { "year": 1990, "migrants": 3005, "terror": 100},
-         { "year": 1995, "migrants": 4005, "terror": 200},
-         { "year": 2000, "migrants": 6005, "terror": 700},
-         { "year": 2005, "migrants": 5505, "terror": 200},
-         { "year": 2010, "migrants": 8005, "terror": 300},
-         { "year": 2015, "migrants": 9885, "terror": 600}
-     ];
-
-    const getCountryData = (countryCode, countryName) => {
+    const getCountryData = activeCountry => {
         const years = d3.range(MIN_YEAR, MAX_YEAR+1, STEP_YEAR);
-        return years.map( year => getCountryDataYear(year, countryCode, countryName));
+        return years.map( year => getCountryDataYear(year, activeCountry));
     }
 
-    const drawMultiLineChart = (countryCode, countryName) => {
-        const data = getCountryData(countryCode, countryName);
+    const drawMultiLineChart = activeCountry => {
+        const data = getCountryData(activeCountry);
         console.log('data', data);
         // define canvas
         const svg = d3.select("#bottom-box").append("svg")
@@ -344,7 +335,7 @@ const makeVisualization = (error, terror, migrations) => {
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.sumMigrations))]);
 
-        const yScaleTerror = d3.scale.linear()
+        const yScaleKills = d3.scale.linear()
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.totalKilled))]);
 
@@ -360,6 +351,12 @@ const makeVisualization = (error, terror, migrations) => {
             .ticks(5)
             .tickFormat(d3.format("d"));
 
+        const yAxisKills = d3.svg.axis()
+            .scale(yScaleKills)
+            .orient("right")
+            .ticks(5)
+            .tickFormat(d3.format("d"));
+
         svg.append("svg:g")
             .attr("class","axis x-axis")
             .attr("transform", "translate(0," + (MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.bottom) + ")")
@@ -370,16 +367,21 @@ const makeVisualization = (error, terror, migrations) => {
             .attr("transform", "translate(" + (MULTI_LINE_CHART_MARGINS.left) + ",0)")
             .call(yAxis);
 
+        svg.append("svg:g")
+            .attr("class","axis y-axis-kills")
+            .attr("transform", "translate(" + (MULTI_LINE_CHART_WIDTH - MULTI_LINE_CHART_MARGINS.right) + ",0)")
+            .call(yAxisKills);
+
         // draw graph lines
         const getMigrationsLine = d3.svg.line()
             .x(d => xScale(d.year))
             .y(d => yScale(d.sumMigrations))
-            .interpolate("cardinal");
+            .interpolate("monotone");
 
-        const getTerrorLine = d3.svg.line()
+        const getKillsLine = d3.svg.line()
             .x(d => xScale(d.year))
-            .y(d => yScaleTerror(d.totalKilled))
-            .interpolate("cardinal");
+            .y(d => yScaleKills(d.totalKilled))
+            .interpolate("monotone");
 
         const lineGraphMigrations = svg.append("path")
             .attr("class", "migrations-line")
@@ -397,26 +399,95 @@ const makeVisualization = (error, terror, migrations) => {
              .ease("cubic")
              .attr("stroke-dashoffset", 0);
 
-        const lineGraphTerror = svg.append("path")
-            .attr("class", "terror-line")
-            .attr("d", getTerrorLine(data))
-            .attr("stroke", MULTI_LINE_CHART_TERROR_COLOR)
+        const lineGraphKills = svg.append("path")
+            .attr("class", "kills-line")
+            .attr("d", getKillsLine(data))
+            .attr("stroke", MULTI_LINE_CHART_KILLS_COLOR)
             .attr("stroke-width", 2)
             .attr("fill", "none");
 
-        const lineGraphTerrorLength = lineGraphTerror.node().getTotalLength();
-        lineGraphTerror
-             .attr("stroke-dasharray", lineGraphTerrorLength + " " + lineGraphTerrorLength)
-             .attr("stroke-dashoffset", lineGraphTerrorLength)
+        const lineGraphKillsLength = lineGraphKills.node().getTotalLength();
+        lineGraphKills
+             .attr("stroke-dasharray", lineGraphKillsLength + " " + lineGraphKillsLength)
+             .attr("stroke-dashoffset", lineGraphKillsLength)
              .transition()
              .duration(1000)
              .ease("cubic")
              .attr("stroke-dashoffset", 0);
+
+        // legend
+        const legendContainer = svg.append("g");
+
+        legendContainer.append("rect")
+            .attr("class", "legend-background-migrations")
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12))
+            .attr("y", MULTI_LINE_CHART_MARGINS.top - 14)
+            .attr("width", "70")
+            .attr("height", "20");
+        legendContainer.append("text")
+            .attr("class", "legend migrations-legend")
+            .attr("text-anchor", "middle")
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 35)
+            .attr("y", MULTI_LINE_CHART_MARGINS.top)
+            .text("Migrations");
+
+        legendContainer.append("rect")
+            .attr("class", "legend-background-kills")
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 80)
+            .attr("y", MULTI_LINE_CHART_MARGINS.top - 14)
+            .attr("width", "70")
+            .attr("height", "20");
+        legendContainer.append("text")
+            .attr("class", "legend kills-legend")
+            .attr("text-anchor", "middle")
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 115)
+            .attr("y", MULTI_LINE_CHART_MARGINS.top)
+            .text("Total Kills");
+
+        const yearIndex = (-1 * MIN_YEAR + currentYear) / STEP_YEAR;
+        // dots
+        svg.append("circle")
+            .attr("id", "multiline-chart-migration-dot")
+            .attr("cx", xScale(data[yearIndex].year))
+            .attr("cy", yScale(data[yearIndex].sumMigrations))
+            .attr("r", 4);
+        svg.append("circle")
+            .attr("id", "multiline-chart-kills-dot")
+            .attr("cx", xScale(data[yearIndex].year))
+            .attr("cy", yScaleKills(data[yearIndex].totalKilled))
+            .attr("r", 4);
+
     }
 
-    const updateMultiLineChart = (countryCode, countryName) => {
-        const data = getCountryData(countryCode, countryName);
-        console.log('data', data);
+    const updateMultiLineChartDot = activeCountry => {
+        const yearIndex = (-1 * MIN_YEAR + currentYear) / STEP_YEAR;
+        const data = getCountryData(activeCountry);
+
+        // x/y scales
+        const xScale = d3.scale.linear()
+            .range([MULTI_LINE_CHART_MARGINS.left, MULTI_LINE_CHART_WIDTH - MULTI_LINE_CHART_MARGINS.right])
+            .domain([data[0].year, data[data.length-1].year]);
+
+        const yScale = d3.scale.linear()
+            .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
+            .domain([0, d3.max(data.map(i => i.sumMigrations))]);
+
+        const yScaleKills = d3.scale.linear()
+            .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
+            .domain([0, d3.max(data.map(i => i.totalKilled))]);
+
+        const svg = d3.select("#multiLineChart");
+        svg.select("#multiline-chart-migration-dot")
+            .attr("cx", xScale(data[yearIndex].year))
+            .attr("cy", yScale(data[yearIndex].sumMigrations));
+        svg.select("#multiline-chart-kills-dot")
+            .attr("cx", xScale(data[yearIndex].year))
+            .attr("cy", yScaleKills(data[yearIndex].totalKilled));
+    }
+
+    const updateMultiLineChart = activeCountry => {
+        const data = getCountryData(activeCountry);
+
         // define canvas
         const svg = d3.select("#multiLineChart");
 
@@ -429,11 +500,10 @@ const makeVisualization = (error, terror, migrations) => {
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.sumMigrations))]);
 
-        const yScaleTerror = d3.scale.linear()
+        const yScaleKills = d3.scale.linear()
             .range([MULTI_LINE_CHART_HEIGHT - MULTI_LINE_CHART_MARGINS.top, MULTI_LINE_CHART_MARGINS.bottom])
             .domain([0, d3.max(data.map(i => i.totalKilled))]);
 
-        // x/y axis
         const xAxis = d3.svg.axis()
             .scale(xScale)
             .ticks(5)
@@ -445,21 +515,31 @@ const makeVisualization = (error, terror, migrations) => {
             .ticks(5)
             .tickFormat(d3.format("d"));
 
+        const yAxisKills = d3.svg.axis()
+            .scale(yScaleKills)
+            .orient("right")
+            .ticks(5)
+            .tickFormat(d3.format("d"));
+
+        // x/y axis
         svg.select(".x-axis")
             .call(xAxis);
 
         svg.select(".y-axis")
             .call(yAxis);
 
+        svg.select(".y-axis-kills")
+            .call(yAxisKills);
+
         const getMigrationsLine = d3.svg.line()
             .x(d => xScale(d.year))
             .y(d => yScale(d.sumMigrations))
-            .interpolate("cardinal");
+            .interpolate("monotone");
 
-        const getTerrorLine = d3.svg.line()
+        const getKillsLine = d3.svg.line()
             .x(d => xScale(d.year))
-            .y(d => yScaleTerror(d.totalKilled))
-            .interpolate("cardinal");
+            .y(d => yScaleKills(d.totalKilled))
+            .interpolate("monotone");
 
         const lineGraphMigrations = svg.select(".migrations-line")
             .attr("d", getMigrationsLine(data))
@@ -477,23 +557,31 @@ const makeVisualization = (error, terror, migrations) => {
              .ease("cubic")
              .attr("stroke-dashoffset", 0);
 
-         const lineGraphTerror = svg.select(".terror-line")
-             .attr("d", getTerrorLine(data))
-             .attr("stroke", MULTI_LINE_CHART_TERROR_COLOR)
+         const lineGraphKills = svg.select(".kills-line")
+             .attr("d", getKillsLine(data))
+             .attr("stroke", MULTI_LINE_CHART_KILLS_COLOR)
              .attr("stroke-width", 2)
              .attr("fill", "none");
 
-         const lineGraphTerrorLength = lineGraphTerror.node().getTotalLength();
-         lineGraphTerror
-              .attr("stroke-dasharray", lineGraphTerrorLength + " " + lineGraphTerrorLength)
-              .attr("stroke-dashoffset", lineGraphTerrorLength)
+         const lineGraphKillsLength = lineGraphKills.node().getTotalLength();
+         lineGraphKills
+              .attr("stroke-dasharray", lineGraphKillsLength + " " + lineGraphKillsLength)
+              .attr("stroke-dashoffset", lineGraphKillsLength)
               .transition()
               .duration(1000)
               .ease("cubic")
               .attr("stroke-dashoffset", 0);
+
+          // dots
+          updateMultiLineChartDot(activeCountry);
     }
 
+    // drawMultiLineChart(activeCountry);
     drawMultiLineChart('DZA', 'Algeria');
+
+
+    // TODO: add legend
+
 }
 
 

@@ -62,6 +62,7 @@ h2 {
     margin: 0px 10%;
     height: 100%;
     width: 100%;
+    /* padding-left: 3%; */
     /* border: 1px solid #f5f5f5; */
 }
 
@@ -70,8 +71,7 @@ h2 {
     left: 0;
     right: 0;
     position: absolute;
-    width: 96%;
-    margin-left: 2%;
+    width: 100%;
 }
 
 .axis path {
@@ -85,6 +85,37 @@ h2 {
     font-size: 13px;
 }
 
+.y-axis {
+    fill: #0D47A1;
+}
+.y-axis-kills {
+    fill: #B71C1C;
+}
+
+.legend {
+    font-size: 12px;
+}
+.legend-background-migrations {
+    fill: #0D47A1;
+    stroke: none;
+}
+.migrations-legend {
+    fill: #f9f9f9;
+}
+.legend-background-kills {
+    fill: #B71C1C;
+    stroke: none;
+}
+.kills-legend {
+    fill: #f9f9f9;
+}
+
+#multiline-chart-migration-dot {
+    fill: #0D47A1;
+}
+#multiline-chart-kills-dot {
+    fill: #B71C1C;
+}
 
 /* tooltip */
 .datamaps-hoverover {
