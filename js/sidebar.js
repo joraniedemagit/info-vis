@@ -4,7 +4,8 @@ const updateSidebar = (countryName, totalKilled, sumMigrations, targetTypes, att
         : "All countries";
     const formatComma = d3.format(",");
     d3.select("#sidebar-country").text(sidebarCountry);
-    d3.select("#sidebar-migration").text("Total immigrants: " + formatComma(sumMigrations));
-    d3.select("#sidebar-targettypes").text("Target Types");
-    d3.select("#sidebar-attacktypes").text("Attack Types");
+    const totalImmigrants = sumMigrations ? formatComma(sumMigrations) : '-';
+    d3.select("#sidebar-migration").text("Total immigrants: " + totalImmigrants);
+    // d3.select("#sidebar-targettypes").text("Target Types");
+    // d3.select("#sidebar-attacktypes").text("Attack Types");
 };

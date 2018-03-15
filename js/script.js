@@ -295,7 +295,7 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("value", currentYear)
         .attr("id", "year");
 
-    d3.select("#sidebar").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
+    d3.select("#sidebar").insert("p", ":first-child").attr("id", "headline").text(headline + currentYear);
 
     // action when slider changes
     d3.select("#year").on("input", () => {
