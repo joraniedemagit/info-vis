@@ -39,7 +39,6 @@ const countFrequency = list => {
     });
     return counts;
 };
-countFrequency([5, 5, 5, 2, 2, 2, 2, 2, 9, 4]);
 
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
@@ -52,6 +51,7 @@ const makeVisualization = (error, terror, migrations) => {
         .rollup(v => {
             const attackTypes = countFrequency(v.map( d => d.AttackType));
             const targetTypes = countFrequency(v.map( d => d.Target_type));
+            const terrorGroup = countFrequency(v.map( d => d.Group));
             const listKilled = v.map(m => ({
                 killed: m.Killed !== null ? m.Killed : 0
             }));
@@ -60,6 +60,7 @@ const makeVisualization = (error, terror, migrations) => {
                 attackTypes,
                 targetTypes,
                 totalKilled,
+                terrorGroup
             };
         })
         .map(terror);
