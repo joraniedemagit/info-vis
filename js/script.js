@@ -283,7 +283,9 @@ const makeVisualization = (error, terror, migrations) => {
         map.updateChoropleth(data_map);
         map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
-        updateMultiLineChartDot(activeCountry);
+        if(activeCountry) {
+            updateMultiLineChartDot(activeCountry.countryCode, activeCountry.countryName);
+        }
     }
 
     // slider
@@ -318,8 +320,8 @@ const makeVisualization = (error, terror, migrations) => {
         return years.map( year => getCountryDataYear(year, countryCode, countryName));
     }
 
-    const drawMultiLineChart = activeCountry => {
-        const data = getCountryData(activeCountry);
+    const drawMultiLineChart = (countryCode, countryName) => {
+        const data = getCountryData(countryCode, countryName);
         console.log('data', data);
         // define canvas
         const svg = d3.select("#bottom-box").append("svg")
@@ -459,9 +461,9 @@ const makeVisualization = (error, terror, migrations) => {
 
     }
 
-    const updateMultiLineChartDot = activeCountry => {
+    const updateMultiLineChartDot = (countryCode, countryName) => {
         const yearIndex = (-1 * MIN_YEAR + currentYear) / STEP_YEAR;
-        const data = getCountryData(activeCountry);
+        const data = getCountryData(countryCode, countryName);
 
         // x/y scales
         const xScale = d3.scale.linear()
@@ -485,8 +487,8 @@ const makeVisualization = (error, terror, migrations) => {
             .attr("cy", yScaleKills(data[yearIndex].totalKilled));
     }
 
-    const updateMultiLineChart = activeCountry => {
-        const data = getCountryData(activeCountry);
+    const updateMultiLineChart = (countryCode, countryName) => {
+        const data = getCountryData(countryCode, countryName);
 
         // define canvas
         const svg = d3.select("#multiLineChart");
@@ -573,7 +575,7 @@ const makeVisualization = (error, terror, migrations) => {
               .attr("stroke-dashoffset", 0);
 
           // dots
-          updateMultiLineChartDot(activeCountry);
+          updateMultiLineChartDot(countryCode, countryName);
     }
 
     // drawMultiLineChart(activeCountry);
