@@ -186,9 +186,9 @@ const makeVisualization = (error, terror, migrations) => {
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
-    const getCountryDataYear = (year, activeCountry) => {
-        const totalKilled = newTerror[year][activeCountry.countryCode]
-            ? newTerror[year][activeCountry.countryCode]["totalKilled"]
+    const getCountryDataYear = (year, countryCode, countryName) => {
+        const totalKilled = newTerror[year][countryCode]
+            ? newTerror[year][countryCode]["totalKilled"]
             : 0;
         const attackTypes = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["attackTypes"]
@@ -221,7 +221,7 @@ const makeVisualization = (error, terror, migrations) => {
             // draw arcs to active country
             console.log('New active country:', countryName, countryCode);
             drawMigrationArcs(countryName);
-            const countryData = getCountryDataYear(currentYear, activeCountry);
+            const countryData = getCountryDataYear(currentYear, countryCode, countryName);
             console.log('getCountryDataYear', countryData);
             updateSidebar(countryName, countryData['totalKilled'], countryData['sumMigrations'], countryData['targetTypes'], countryData['attackTypes']);
             updateMultiLineChart(countryCode, countryName);
@@ -302,7 +302,7 @@ const makeVisualization = (error, terror, migrations) => {
         const year = +d3.event.target.value;
         updateVisualization(year);
         if(activeCountry) {
-            const countryData = getCountryDataYear(year, activeCountry);
+            const countryData = getCountryDataYear(year, activeCountry["countryCode"], activeCountry["countryName"]);
             updateSidebar(activeCountry["countryName"], countryData['totalKilled'], countryData['sumMigrations']);
         }
     });
@@ -313,9 +313,9 @@ const makeVisualization = (error, terror, migrations) => {
     /******************************************************
      * Draw Migrations/Terrorism multi line chart
      ******************************************************/
-    const getCountryData = activeCountry => {
+    const getCountryData = (countryCode, countryName) => {
         const years = d3.range(MIN_YEAR, MAX_YEAR+1, STEP_YEAR);
-        return years.map( year => getCountryDataYear(year, activeCountry));
+        return years.map( year => getCountryDataYear(year, countryCode, countryName));
     }
 
     const drawMultiLineChart = activeCountry => {
