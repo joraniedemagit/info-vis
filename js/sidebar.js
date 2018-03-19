@@ -1,4 +1,4 @@
-function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups) {
+function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, migrationFlows=null) {
     // console.log('🦖', countryName, totalKilled, sumMigrations, targetTypes, attackTypes);
     const sidebarCountry = countryName
         ? countryName
@@ -8,14 +8,10 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     const totalImmigrants = !isNaN(sumMigrations) ? formatComma(sumMigrations) : '-';
     d3.select("#sidebar-migration").text("Total immigrants: " + totalImmigrants);
 
-    const dummyCountryOfOrigin = {
-        'Colombia': 123456,
-        'Canada': 234567,
-        'Mexico': 345678
+    if (migrationFlows) {
+        const countryOfOriginChartData = getTopValues(migrationFlows, 3);
+        updateCountryOfOriginChart(countryOfOriginChartData.labels, countryOfOriginChartData.data);
     }
-    const countryOfOriginChartData = getTopValues(dummyCountryOfOrigin);
-    updateCountryOfOriginChart(countryOfOriginChartData.labels, countryOfOriginChartData.data);
-
     const terrorGroupsChartData = getTopValues(terrorGroups);
     updateTerrorOrganisationsChart(terrorGroupsChartData.labels, terrorGroupsChartData.data);
 

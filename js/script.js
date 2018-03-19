@@ -226,6 +226,10 @@ const makeVisualization = (error, terror, migrations) => {
             ? newTerror[year][countryCode]["terrorGroups"]
             : {};
         const migrationsCountry = migrations[year][countryName];
+        let migrationFlows = {};
+        migrationsCountry.forEach( m => {
+            migrationFlows[m.origin.country] = m.migrants
+        });
         const sumMigrations = migrationsCountry
             ? migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 )
             : 0;
@@ -235,7 +239,8 @@ const makeVisualization = (error, terror, migrations) => {
             sumMigrations,
             attackTypes,
             targetTypes,
-            terrorGroups
+            terrorGroups,
+            migrationFlows
         });
     };
 
@@ -259,7 +264,8 @@ const makeVisualization = (error, terror, migrations) => {
                 countryData["sumMigrations"],
                 countryData["targetTypes"],
                 countryData["attackTypes"],
-                countryData["terrorGroups"]
+                countryData["terrorGroups"],
+                countryData["migrationFlows"]
             );
             updateMultiLineChart(countryCode, countryName);
         }
