@@ -415,7 +415,8 @@ const makeVisualization = (error, terror, migrations) => {
                 countryData["sumMigrations"],
                 countryData["targetTypes"],
                 countryData["attackTypes"],
-                countryData["terrorGroups"]
+                countryData["terrorGroups"],
+                countryData["migrationFlows"]
             );
         } else {
             const globalData = getGlobalDataYear(currentYear);

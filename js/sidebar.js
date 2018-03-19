@@ -1,5 +1,10 @@
+let countryOfOriginChart = null;
+let terrorGroupsChart = null;
+let targetTypesChart = null;
+let attackTypesChart = null;
+
 function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, migrationFlows=null) {
-    // console.log('🦖', countryName, totalKilled, sumMigrations, targetTypes, attackTypes);
+    // console.log('🦖', countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups);
     const sidebarCountry = countryName
         ? countryName
         : "All countries";
@@ -8,18 +13,38 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     const totalImmigrants = !isNaN(sumMigrations) ? formatComma(sumMigrations) : '-';
     d3.select("#sidebar-migration").text("Total immigrants: " + totalImmigrants);
 
+    // Country Of Origin Chart
     if (migrationFlows) {
         const countryOfOriginChartData = getTopValues(migrationFlows, 3);
-        updateCountryOfOriginChart(countryOfOriginChartData.labels, countryOfOriginChartData.data);
+        d3.select("#countryOfOriginChart").style("display","inherit");
+        if (countryOfOriginChart) {
+            countryOfOriginChart.destroy();
+        }
+        countryOfOriginChart = createCountryOfOriginChart(countryOfOriginChartData.labels, countryOfOriginChartData.data);
+    } else {
+        d3.select("#countryOfOriginChart").style("display", "none");
     }
+
+    // Terror Organisations Chart
     const terrorGroupsChartData = getTopValues(terrorGroups);
-    updateTerrorOrganisationsChart(terrorGroupsChartData.labels, terrorGroupsChartData.data);
+    if (terrorGroupsChart) {
+        terrorGroupsChart.destroy();
+    }
+    terrorGroupsChart = createTerrorOrganisationsChart(terrorGroupsChartData.labels, terrorGroupsChartData.data);
 
-    const targetTypesChartData = getTopValues(targetTypes);
-    updateTargetTypesChart(targetTypesChartData.labels, targetTypesChartData.data);
+    // Target Types Chart
+    const targetTypesChartData = getTopValues(targetTypes, 3);
+    if (targetTypesChart) {
+        targetTypesChart.destroy();
+    }
+    targetTypesChart = createTargetTypesChart(targetTypesChartData.labels, targetTypesChartData.data);
 
-    const attackTypesChartData = getTopValues(attackTypes);
-    updateAttackTypesChart(attackTypesChartData.labels, attackTypesChartData.data);
+    // Attack Types Chart
+    const attackTypesChartData = getTopValues(attackTypes, 3);
+    if (attackTypesChart) {
+        attackTypesChart.destroy();
+    }
+    attackTypesChart = createAttackTypesChart(attackTypesChartData.labels, attackTypesChartData.data);
 };
 
 function getTopValues(obj, n=5) {
@@ -38,7 +63,7 @@ function getTopValues(obj, n=5) {
     }
 }
 
-function updateCountryOfOriginChart(labels, data) {
+function createCountryOfOriginChart(labels, data) {
     const ctx = document.getElementById("countryOfOriginChart");
     const chart = new Chart(ctx, {
         type: 'pie',
@@ -51,13 +76,18 @@ function updateCountryOfOriginChart(labels, data) {
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            legend: {
+                position: 'right'
+            }
         }
     });
+    return chart;
 }
 
-function updateTerrorOrganisationsChart(labels, data) {
+function createTerrorOrganisationsChart(labels, data) {
     const ctx = document.getElementById("terrorOrganisationsChart");
+    // ctx.height = 300;
     const horizontalBarChart = new Chart(ctx, {
         type: 'horizontalBar',
         data: {
@@ -72,6 +102,9 @@ function updateTerrorOrganisationsChart(labels, data) {
         },
         options: {
             responsive: true,
+            legend: {
+                display: false
+            },
             scales: {
                 yAxes: [{
                     ticks: {
@@ -81,9 +114,10 @@ function updateTerrorOrganisationsChart(labels, data) {
             }
         }
     });
+    return horizontalBarChart;
 }
 
-function updateTargetTypesChart(labels, data) {
+function createTargetTypesChart(labels, data) {
     const ctx = document.getElementById("attackTypesChart");
     const polarChart = new Chart(ctx, {
         type: 'polarArea',
@@ -96,14 +130,18 @@ function updateTargetTypesChart(labels, data) {
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            legend: {
+                display: false
+            }
         }
     });
+    return polarChart;
 }
 
-function updateAttackTypesChart(labels, data) {
+function createAttackTypesChart(labels, data) {
     const ctx = document.getElementById("targetTypesChart");
-    const myDoughnutChart = new Chart(ctx, {
+    const doughnutChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels,
@@ -114,9 +152,13 @@ function updateAttackTypesChart(labels, data) {
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            legend: {
+                position: 'right'
+            }
         }
     });
+    return doughnutChart;
 }
 
 
