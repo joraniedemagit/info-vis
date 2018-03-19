@@ -137,7 +137,6 @@ h1, h2, h3, h4, h5, h6 {
 .hoverinfo {
 }
 
-<<<<<<< HEAD
 /*** INFO MODAL */
 #modal-wrap {
     position: fixed;
@@ -336,14 +335,14 @@ hr.line {
   	animation-duration: 0.5s;
   	-webkit-animation-fill-mode: both;
   	animation-fill-mode: both;
-=======
+}
+
 #bigYearLabelContainer {
     position: absolute;
     right: 30px;
     top: 60px;
 }
 
-#bigYearLabelContainer span#bigYearLabelf {
+#bigYearLabelContainer span#bigYearLabel {
     font-size: 36px;
->>>>>>> baaf9e36f5cc8da94d9be95cec9b9ff9776f7588
 }
