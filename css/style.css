@@ -11,10 +11,6 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 100;
 }
 
-h2 {
-    font-size: 22px;
-}
-
 .no-padding {
     padding: 0;
 }
@@ -38,9 +34,10 @@ h2 {
     padding: 0px;
     overflow: hidden;
     border-bottom: 1px solid #F5F5F5;
+    position: relative;
 }
 
-#viz-container svg {
+#viz-container svg.datamap {
     padding-top: 50px;
     padding-bottom: 20px;
 }
@@ -50,6 +47,15 @@ h2 {
     padding: 20px 30px;
     border-left: 1px solid #F5F5F5;
     position: absolute;
+}
+
+#sidebar h2 {
+    font-weight: 300;
+}
+
+#sidebar h3 {
+    font-size: 20px;
+    font-weight: 300;
 }
 
 .box-shadow {
@@ -117,6 +123,12 @@ h2 {
     fill: #B71C1C;
 }
 
+/* legend */
+#legend-svg {
+    position: absolute;
+    left: 30px;
+    bottom: -67px;
+}
 /* tooltip */
 .datamaps-hoverover {
 }

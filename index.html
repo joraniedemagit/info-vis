@@ -22,17 +22,57 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-9 no-padding">
-                <div id="viz-container">
-                    <h1 id="titleText">Visualizing the Relationship Between Migration and Global Terrorism</h1>
-                </div>
+                <h1 id="titleText">Visualizing the Relationship Between Migration and Global Terrorism</h1>
+                <div id="viz-container"></div>
+                <!-- <svg id="legend-svg"></svg> -->
             </div>
             <div class="col-md-3 no-padding">
                 <div id="sidebar">
                     <h2 id="sidebar-country"></h2>
+                    <h3>Migrations</h3>
                     <p id="sidebar-migration"></p>
+                    <div>Country of Origin:</div>
+                    <ul>
+                        <li>Afghanistan (33%)</li>
+                        <li>China (23%)</li>
+                        <li>Iraq (12%)</li>
+                        <li>Other (32%)</li>
+                    </ul>
+                    <div>Religion Migrants:</div>
+                    <ul>
+                        <li>Jewish (33%)</li>
+                        <li>Christian (23%)</li>
+                        <li>Muslim (12%)</li>
+                        <li>Other (32%)</li>
+                    </ul>
+
+                    <h3>Terrorist Attacks</h3>
                     <p id="sidebar-terror"></p>
-                    <p id="sidebar-targettypes"></p>
-                    <p id="sidebar-attacktypes"></p>
+                    <div id="sidebar-targettypes">
+                        <div>Terrorist Organisations:</div>
+                        <ul>
+                            <li>Taliban (62%)</li>
+                            <li>Islamic State (23%)</li>
+                            <li>Haqqani (12%)</li>
+                            <li>Other (3%)</li>
+                        </ul>
+                        <div>Target Types:</div>
+                        <ul>
+                            <li>Police (33%)</li>
+                            <li>Business (23%)</li>
+                            <li>Airports & Aircraft (12%)</li>
+                            <li>Other (32%)</li>
+                        </ul>
+                    </div>
+                    <div id="sidebar-attacktypes">
+                        <div>Attack Types:</div>
+                        <ul>
+                            <li>Bombing/Explosion (44%)</li>
+                            <li>Assassination (32%)</li>
+                            <li>Armed Assault (15%)</li>
+                            <li>Other (9%)</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
