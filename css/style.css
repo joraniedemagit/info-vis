@@ -4,6 +4,7 @@ body {
     font-family: 'Lato', sans-serif;
     font-weight: 300;
     font-size: 16px;
+    letter-spacing: 1px;
   /* background-color: #F5F5F5; */
 }
 
@@ -133,4 +134,204 @@ h1, h2, h3, h4, h5, h6 {
 .datamaps-hoverover {
 }
 .hoverinfo {
+}
+
+/*** INFO MODAL */
+#modal-wrap {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#modal {
+    overflow-y: hidden;
+    background: white;
+    z-index: 999;
+    /* border: 2px solid #f1f1f1; */
+    box-shadow: 4px 4px 8px gray;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 70%;
+    height: auto;
+    min-width: 300px;
+    max-width: 90%;
+    max-height: 95%;
+    overflow: auto;
+    padding: 20px 60px;
+}
+
+#close-modal {
+    cursor: pointer;
+    font-size: 20px;
+    position: absolute;
+    z-index: 10;
+    top: 10px;
+    right: 18px;
+}
+
+#close-modal:hover {
+    color: #0D47A1;
+}
+
+#modalTrigger {
+    position: absolute;
+    left: 15px;
+    top: 6px;
+    z-index: 99;
+    font-size: 23px;
+}
+
+#modal h1 {
+    width: 100%;
+    text-align: center;
+    font-size: 35px;
+    margin-top: 60px;
+}
+
+#modal p {
+    padding: 60px 15%;
+    line-height: 28px;
+    color: #666;
+}
+
+#modalTrigger .fas {
+    cursor: pointer;
+}
+
+#modalTrigger .fas:hover {
+    color: #0D47A1;
+}
+
+hr.line {
+    width: 50px;
+    height: 1px;
+    background: #888;
+    border: none;
+}
+
+/*************** ANIMTIONS ************************/
+@-webkit-keyframes draakFadeInLeft {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(-20px, 0, 0);
+	-moz-transform: translate3d(-20px, 0, 0);
+	-o-transform: translate3d(-20px, 0, 0);
+    transform: translate3d(-20px, 0, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0);
+	-o-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.draakFadeInLeft {
+  -webkit-animation-name: draakFadeInLeft;
+  -moz-animation-name: draakFadeInLeft;
+  -o-animation-name: draakFadeInLeft;
+  animation-name: draakFadeInLeft;
+  -webkit-animation-timing-function: ease-out;
+  -moz-animation-timing-function: ease-out;
+  -o-animation-timing-function: ease-out;
+  animation-timing-function: ease-out;
+}
+
+@-webkit-keyframes draakFadeInUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 20px, 0);
+    transform: translate3d(0, 20px, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@-webkit-keyframes draakFadeInDown {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -200px, 0);
+    transform: translate3d(0, -200px, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@-webkit-keyframes draakFadeInRight {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(20px, 0, 0);
+    transform: translate3d(20px, 0, 0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@-webkit-keyframes draakFadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+.draakFadeInUp {
+  -webkit-animation-name: draakFadeInUp;
+  animation-name: draakFadeInUp;
+  -webkit-animation-timing-function: ease-out;
+  animation-timing-function: ease-out;
+}
+
+.draakFadeInDown {
+  -webkit-animation-name: draakFadeInDown;
+  animation-name: draakFadeInDown;
+  -webkit-animation-timing-function: ease-out;
+  animation-timing-function: ease-out;
+}
+
+.draakFadeInRight {
+  -webkit-animation-name: draakFadeInRight;
+  animation-name: draakFadeInRight;
+  -webkit-animation-timing-function: ease-out;
+  animation-timing-function: ease-out;
+}
+
+.draakFadeIn {
+  -webkit-animation-name: draakFadeIn;
+  animation-name: draakFadeIn;
+  -webkit-animation-timing-function: ease-out;
+  animation-timing-function: ease-out;
+}
+
+.draakAnimated {
+	-webkit-animation-duration: 0.5s;
+  	animation-duration: 0.5s;
+  	-webkit-animation-fill-mode: both;
+  	animation-fill-mode: both;
 }

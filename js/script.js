@@ -11,12 +11,12 @@ const MAX_STROKE_WIDTH = 10;
 const MIN_COLOR = "#EFEFFF";
 const MAX_COLOR = "#02386F";
 const COLOR_BLUE = "#0D47A1";
-const COLOR_RED = "#B71C1C";
-const ARC_COLOR = '#FF4F54';
+const COLOR_RED= "#B71C1C";
+// const ACTIVE_COLOR = 'red';
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
-const MAX_MIGRATIONS = 5;
+const MAX_MIGRATIONS = 10;
 
 // Multi Line Chart settings
 const MULTI_LINE_CHART_HEIGHT = 220;
@@ -39,61 +39,57 @@ const countFrequency = list => {
     });
     return counts;
 };
+countFrequency([5, 5, 5, 2, 2, 2, 2, 2, 9, 4]);
 
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
-    console.log('Terror', terror);
     /***************************
      * Preprocess Terrorism
      ***************************/
-    const allTotalKilledValues = [];
     const newTerror = d3.nest()
         .key(d => d.Year)
         .key(d => d.CountryCode)
         .rollup(v => {
             const attackTypes = countFrequency(v.map( d => d.AttackType));
             const targetTypes = countFrequency(v.map( d => d.Target_type));
-            const terrorGroup = countFrequency(v.map( d => d.Group));
             const listKilled = v.map(m => ({
                 killed: m.Killed !== null ? m.Killed : 0
             }));
             const totalKilled = d3.sum(listKilled, d => d.killed);
-            allTotalKilledValues.push(totalKilled);
             return {
                 attackTypes,
                 targetTypes,
                 totalKilled,
-                terrorGroup
             };
         })
         .map(terror);
 
-    const globalTerror = d3.nest()
-        .key(d => d.Year)
-        .rollup( leaves => {
-            const attackTypes = countFrequency(leaves.map(d => d.AttackType));
-            const targetTypes = countFrequency(leaves.map(d => d.Target_type));
-            const terrorGroup = countFrequency(leaves.map( d => d.Group));
-            const totalKilled = d3.sum(leaves, d => d.Killed);
-            return {
-                attackTypes,
-                targetTypes,
-                terrorGroup,
-                totalKilled
-            }
-        })
-        .map(terror);
+    // const globalTest = d3.nest()
+    //     .key(d => d.Year)
+    //     .rollup(v => {
+    //         console.log('v', v);
+    //         return v.Killed;
+    //     })
+    //     .map(terror);
 
-    console.log('globalTerror', globalTerror);
+    //     var dataByDate = d3.nest()
+    // .key(d => d.date)
+    // .rollup(d => d3.sum(d, g => g.value))
+    // .map(points);
+
+    // console.log('globalTest', globalTest);
+        // var deptSum = d3.nest()
+        // .key(function(d) { return d.department; })
+        // .rollup(function(v) { return {
+        //     count: v.length,
+        //     total: d3.sum(d3.values(v[0].quant)),
+        //     avg: d3.mean(d3.values(v[0].quant))
+        // }; })
+        // .entries(data)
+
     console.log('newTerror', newTerror);
-
-    const minValue = arrayMin(allTotalKilledValues);
-    const maxValue = arrayMax(allTotalKilledValues);
-
-    const colorScale = d3.scale
-      .linear()
-      .domain([minValue, maxValue])
-      .range([MIN_COLOR, MAX_COLOR]);
+    const globalTotalKilled = Object.keys(newTerror).map(year => Object.keys(newTerror[year]).map(countryCode => newTerror[year][countryCode]['totalKilled']));
+    console.log('globalTotalKilled', globalTotalKilled);
 
     const getTerrorData = (year) => {
         const terrorCurrentYear = newTerror[year];
@@ -110,6 +106,15 @@ const makeVisualization = (error, terror, migrations) => {
                 totalKilled: terrorCurrentYear[countryCode]["totalKilled"]
             }
         });
+        const onlyValues = Object.keys(terrorCurrentYear).map( key => terrorCurrentYear[key]["totalKilled"]);
+        const minValue = Math.min.apply(null, onlyValues);
+        const maxValue = Math.max.apply(null, onlyValues);
+
+        const colorScale = d3.scale
+          .linear()
+          .domain([minValue, maxValue])
+          .range([MIN_COLOR, MAX_COLOR]);
+
         Object.keys(data_map).forEach( key => {
           const value = data_map[key]["totalKilled"];
           data_map[key]["fillColor"] = colorScale(value);
@@ -171,8 +176,7 @@ const makeVisualization = (error, terror, migrations) => {
             popupOnHover: true, // True to show the popup while hovering
             highlightOnHover: true,
             arcSharpness: 0.5,
-            animationSpeed: 1000,
-            strokeColor: ARC_COLOR
+            animationSpeed: 1000
         });
     }
 
@@ -182,20 +186,6 @@ const makeVisualization = (error, terror, migrations) => {
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
-    const getGlobalDataYear = (year) => {
-        const totalKilled = globalTerror[year]["totalKilled"];
-        const attackTypes = globalTerror[year]["attackTypes"];
-        const targetTypes = globalTerror[year]["targetTypes"];
-        const sumMigrations = 0;
-        return ({
-            year,
-            totalKilled,
-            sumMigrations,
-            attackTypes,
-            targetTypes
-        })
-    };
-
     const getCountryDataYear = (year, countryCode, countryName) => {
         const totalKilled = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["totalKilled"]
@@ -239,9 +229,7 @@ const makeVisualization = (error, terror, migrations) => {
         else {
             // hide arcs
             map.arc([]);
-            const globalData = getGlobalDataYear(currentYear);
-            updateSidebar('All countries', globalData['totalKilled'], globalData['sumMigrations'], globalData['targetTypes'], globalData['attackTypes']);
-            updateMultiLineChart();
+            updateSidebar(activeCountry);
         }
     }
 
@@ -279,56 +267,7 @@ const makeVisualization = (error, terror, migrations) => {
     });
 
     // TODO: add legend
-    // map.legend();
-
-    //key
-    const legendWidth = 140,
-        legendHeight = 400;
-    const legendSvg = d3.select("#viz-container")
-        .insert("svg", ":first-child")
-        .attr("id", "legend-svg")
-        .attr("width", legendWidth)
-        .attr("height", legendHeight);
-    const gradient = legendSvg.append("defs")
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "100%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "100%")
-        .attr("spreadMethod", "pad");
-    gradient.append("stop")
-        .attr("offset", "0%")
-        .attr("stop-color", MAX_COLOR)
-        .attr("stop-opacity", 1);
-    gradient.append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", MIN_COLOR)
-        .attr("stop-opacity", 1);
-    legendSvg.append("rect")
-        .attr("width", legendWidth - 100)
-        .attr("height", legendHeight - 100)
-        .style("fill", "url(#gradient)")
-        .attr("transform", "translate(0,10)");
-    const y = d3.scale
-        .linear()
-        .domain([minValue, maxValue])
-        .range([300, 0]);
-    const yAxis = d3.svg
-        .axis()
-        .scale(y)
-        .orient("right");
-    legendSvg.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(41,10)")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 55)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Deaths by terrorist attacks");
-
+    map.legend();
 
     // Make map responsive
     d3.select(window).on("resize", function() {
@@ -344,13 +283,9 @@ const makeVisualization = (error, terror, migrations) => {
         map.updateChoropleth(data_map);
         map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
-        activeCountry
-            ? updateMultiLineChartDot(
-                  activeCountry.countryCode,
-                  activeCountry.countryName
-              )
-            : updateMultiLineChartDot();
-
+        if(activeCountry) {
+            updateMultiLineChartDot(activeCountry.countryCode, activeCountry.countryName);
+        }
     }
 
     // slider
@@ -362,7 +297,7 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("value", currentYear)
         .attr("id", "year");
 
-    d3.select("#sidebar").insert("p", ":first-child").attr("id", "headline").text(headline + currentYear);
+    d3.select("#sidebar").insert("h2", ":first-child").attr("id", "headline").text(headline + currentYear);
 
     // action when slider changes
     d3.select("#year").on("input", () => {
@@ -375,23 +310,19 @@ const makeVisualization = (error, terror, migrations) => {
     });
 
     // update Sidebar
-    const globalData = getGlobalDataYear(currentYear);
-    updateSidebar('All countries', globalData['totalKilled'], globalData['sumMigrations'], globalData['targetTypes'], globalData['attackTypes']);
+    updateSidebar(activeCountry);
 
     /******************************************************
      * Draw Migrations/Terrorism multi line chart
      ******************************************************/
-    const getGlobalData = () => {
-        const years = d3.range(MIN_YEAR, MAX_YEAR+1, STEP_YEAR);
-        return years.map( year => getGlobalDataYear(year));
-    }
     const getCountryData = (countryCode, countryName) => {
         const years = d3.range(MIN_YEAR, MAX_YEAR+1, STEP_YEAR);
         return years.map( year => getCountryDataYear(year, countryCode, countryName));
     }
 
     const drawMultiLineChart = (countryCode, countryName) => {
-        const data = (countryCode && countryName) ? getCountryData(countryCode, countryName) : getGlobalData();
+        const data = getCountryData(countryCode, countryName);
+        console.log('data', data);
         // define canvas
         const svg = d3.select("#bottom-box").append("svg")
             .attr("id", "multiLineChart")
@@ -532,7 +463,8 @@ const makeVisualization = (error, terror, migrations) => {
 
     const updateMultiLineChartDot = (countryCode, countryName) => {
         const yearIndex = (-1 * MIN_YEAR + currentYear) / STEP_YEAR;
-        const data = (countryCode && countryName) ? getCountryData(countryCode, countryName) : getGlobalData();
+        const data = getCountryData(countryCode, countryName);
+
         // x/y scales
         const xScale = d3.scale.linear()
             .range([MULTI_LINE_CHART_MARGINS.left, MULTI_LINE_CHART_WIDTH - MULTI_LINE_CHART_MARGINS.right])
@@ -556,7 +488,8 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     const updateMultiLineChart = (countryCode, countryName) => {
-        const data = (countryCode && countryName) ? getCountryData(countryCode, countryName) : getGlobalData();
+        const data = getCountryData(countryCode, countryName);
+
         // define canvas
         const svg = d3.select("#multiLineChart");
 
@@ -644,34 +577,39 @@ const makeVisualization = (error, terror, migrations) => {
           // dots
           updateMultiLineChartDot(countryCode, countryName);
     }
-    drawMultiLineChart();
+
+    // drawMultiLineChart(activeCountry);
+    drawMultiLineChart('DZA', 'Algeria');
+
+
+    // TODO: add legend
 }
 
+
+/******************************
+ *	INFO MODAL	 			  *
+ ******************************/
+$("#modalTrigger").click(function() {
+    $("#modal-wrap").css("display", "block");
+    console.log("KLIK");
+});
+$("#close-modal").click(function() {
+    $("#modal-wrap").css("display", "none");
+});
+// close pop up if clicked outside
+var specifiedElement = document.getElementById('modal');
+var offerteTrigger = document.getElementById("modalTrigger");
+if (specifiedElement) {
+    document.addEventListener('click', function(event) {
+        var isClickInside = specifiedElement.contains(event.target) || offerteTrigger.contains(event.target);
+
+        if (!isClickInside) {
+            $("#modal-wrap").css("display", "none");
+        }
+    });
+}
 
 d3.queue()
     .defer(d3.json, "data/terror-min.json")
     .defer(d3.json, "data/migrations3.json")
     .await(makeVisualization);
-
-
-function arrayMin(arr) {
-    var len = arr.length,
-        min = Infinity;
-    while (len--) {
-        if (arr[len] < min) {
-            min = arr[len];
-        }
-    }
-    return min;
-}
-
-function arrayMax(arr) {
-    var len = arr.length,
-        max = -Infinity;
-    while (len--) {
-        if (arr[len] > max) {
-            max = arr[len];
-        }
-    }
-    return max;
-}
