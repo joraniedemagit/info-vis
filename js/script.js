@@ -709,7 +709,6 @@ const makeVisualization = (error, terror, migrations) => {
     drawMultiLineChart();
 }
 
-
 d3.queue()
     .defer(d3.json, "data/terror-min.json")
     .defer(d3.json, "data/migrations3.json")
@@ -736,4 +735,27 @@ function arrayMax(arr) {
         }
     }
     return max;
+}
+
+/******************************
+ *	INFO MODAL	 			  *
+ ******************************/
+$("#modalTrigger").click(function() {
+    $("#modal-wrap").css("display", "block");
+    console.log("KLIK");
+});
+$("#close-modal").click(function() {
+    $("#modal-wrap").css("display", "none");
+});
+// close pop up if clicked outside
+var specifiedElement = document.getElementById('modal');
+var offerteTrigger = document.getElementById("modalTrigger");
+if (specifiedElement) {
+    document.addEventListener('click', function(event) {
+        var isClickInside = specifiedElement.contains(event.target) || offerteTrigger.contains(event.target);
+
+        if (!isClickInside) {
+            $("#modal-wrap").css("display", "none");
+        }
+    });
 }
