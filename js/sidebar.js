@@ -78,7 +78,7 @@ function createCountryOfOriginChart(labels, data) {
         options: {
             responsive: true,
             legend: {
-                position: 'right'
+                position: 'right',
             }
         }
     });
@@ -108,9 +108,17 @@ function createTerrorOrganisationsChart(labels, data) {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero:true
+                        beginAtZero:true,
+                        callback: (value) => shortenString(value, 10)
                     }
                 }]
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'label',
+                callbacks: {
+                    title: (tooltipItems, data) => getTitleLabel(tooltipItems, data)
+                }
             }
         }
     });
@@ -178,3 +186,13 @@ const borderColor =  [
     'rgba(153, 102, 255, 1)',
     'rgba(255, 159, 64, 1)'
 ];
+
+
+function shortenString(value, size) {
+    return (value.length > size) ? value.substr(0, size) + '...' : value;
+}
+
+function getTitleLabel(tooltipItems, data) {
+    const idx = tooltipItems[0].index;
+    return data.labels[idx];
+}
