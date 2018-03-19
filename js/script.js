@@ -10,9 +10,9 @@ const MIN_STROKE_WIDTH = 1;
 const MAX_STROKE_WIDTH = 10;
 const MIN_COLOR = "#EFEFFF";
 const MAX_COLOR = "#02386F";
-const COLOR_BLUE = "#0D47A1";
-const COLOR_RED = "#B71C1C";
-const ARC_COLOR = '#FF4F54';
+const COLOR_BLUE = 'rgba(54, 162, 235, 0.8)';
+const COLOR_RED = 'rgba(255, 99, 132, 0.8)';
+const ARC_COLOR = 'rgba(255, 99, 132, 0.8)';
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
@@ -23,12 +23,12 @@ const MULTI_LINE_CHART_HEIGHT = 220;
 const MULTI_LINE_CHART_PADDING = 50;
 const MULTI_LINE_CHART_MARGINS = {top: 30, right: 30, bottom: 30, left: 70}
 const MULTI_LINE_CHART_WIDTH = document.getElementById('bottom-box').offsetWidth;
-const MULTI_LINE_CHART_MIGRATIONS_COLOR = COLOR_BLUE;
-const MULTI_LINE_CHART_KILLS_COLOR = COLOR_RED;
+const MULTI_LINE_CHART_MIGRATIONS_COLOR = COLOR_RED;
+const MULTI_LINE_CHART_KILLS_COLOR = COLOR_BLUE;
 
 // Parameters
 let currentYear = MIN_YEAR;
-let headline = "Number of deaths caused by terrorism in ";
+// let headline = "Number of deaths caused by terrorism in ";
 let activeCountry = null;
 let strokeWidthScale = d3.scale.linear();
 
@@ -53,7 +53,7 @@ const makeVisualization = (error, terror, migrations) => {
         .rollup(v => {
             const attackTypes = countFrequency(v.map( d => d.AttackType));
             const targetTypes = countFrequency(v.map( d => d.Target_type));
-            const terrorGroup = countFrequency(v.map( d => d.Group));
+            const terrorGroups = countFrequency(v.map( d => d.Group));
             const listKilled = v.map(m => ({
                 killed: m.Killed !== null ? m.Killed : 0
             }));
@@ -63,7 +63,7 @@ const makeVisualization = (error, terror, migrations) => {
                 attackTypes,
                 targetTypes,
                 totalKilled,
-                terrorGroup
+                terrorGroups
             };
         })
         .map(terror);
@@ -73,12 +73,12 @@ const makeVisualization = (error, terror, migrations) => {
         .rollup( leaves => {
             const attackTypes = countFrequency(leaves.map(d => d.AttackType));
             const targetTypes = countFrequency(leaves.map(d => d.Target_type));
-            const terrorGroup = countFrequency(leaves.map( d => d.Group));
+            const terrorGroups = countFrequency(leaves.map( d => d.Group));
             const totalKilled = d3.sum(leaves, d => d.Killed);
             return {
                 attackTypes,
                 targetTypes,
-                terrorGroup,
+                terrorGroups,
                 totalKilled
             }
         })
@@ -97,7 +97,7 @@ const makeVisualization = (error, terror, migrations) => {
 
     const getTerrorData = (year) => {
         const terrorCurrentYear = newTerror[year];
-        console.log('Terror current year:', terrorCurrentYear);
+        // console.log('Terror current year:', terrorCurrentYear);
         return terrorCurrentYear;
     }
 
@@ -123,10 +123,24 @@ const makeVisualization = (error, terror, migrations) => {
      *  Migrations
      ***************************/
     console.log('Migrations: ', migrations);
+
+    const globalMigrations = {};
+    Object.keys(migrations).forEach(yearKey => {
+        Object.keys(migrations[yearKey]).forEach( countryKey => {
+            const leaves = migrations[yearKey][countryKey];
+            const totalMigrants = d3.sum(leaves, leaves => +leaves.migrants);
+            if (globalMigrations[yearKey]) {
+                globalMigrations[yearKey] += totalMigrants;
+            }
+            else {
+                globalMigrations[yearKey] = totalMigrants;
+            }
+        })
+    });
+    console.log('globalMigrations', globalMigrations);
+
     const getMigrationData = (year) => {
         const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
-        console.log("Migrations current year:", migrationsCurrentYear);
-
         const onlyMigrationValues = [].concat.apply([], Object.keys(migrationsCurrentYear)
             .map(k => migrationsCurrentYear[k].map(m => m.migrants)));
         const minMigrationValue = Math.min.apply(null, onlyMigrationValues);
@@ -186,13 +200,15 @@ const makeVisualization = (error, terror, migrations) => {
         const totalKilled = globalTerror[year]["totalKilled"];
         const attackTypes = globalTerror[year]["attackTypes"];
         const targetTypes = globalTerror[year]["targetTypes"];
-        const sumMigrations = 0;
+        const terrorGroups = globalTerror[year]["terrorGroups"];
+        const sumMigrations = globalMigrations[year];
         return ({
             year,
             totalKilled,
             sumMigrations,
             attackTypes,
-            targetTypes
+            targetTypes,
+            terrorGroups
         })
     };
 
@@ -206,6 +222,9 @@ const makeVisualization = (error, terror, migrations) => {
         const targetTypes = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["targetTypes"]
             : {};
+        const terrorGroups = newTerror[year][countryCode]
+            ? newTerror[year][countryCode]["terrorGroups"]
+            : {};
         const migrationsCountry = migrations[year][countryName];
         const sumMigrations = migrationsCountry
             ? migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 )
@@ -215,7 +234,8 @@ const makeVisualization = (error, terror, migrations) => {
             totalKilled,
             sumMigrations,
             attackTypes,
-            targetTypes
+            targetTypes,
+            terrorGroups
         });
     };
 
@@ -233,14 +253,28 @@ const makeVisualization = (error, terror, migrations) => {
             drawMigrationArcs(countryName);
             const countryData = getCountryDataYear(currentYear, countryCode, countryName);
             console.log('getCountryDataYear', countryData);
-            updateSidebar(countryName, countryData['totalKilled'], countryData['sumMigrations'], countryData['targetTypes'], countryData['attackTypes']);
+            updateSidebar(
+                countryName,
+                countryData["totalKilled"],
+                countryData["sumMigrations"],
+                countryData["targetTypes"],
+                countryData["attackTypes"],
+                countryData["terrorGroups"]
+            );
             updateMultiLineChart(countryCode, countryName);
         }
         else {
             // hide arcs
             map.arc([]);
             const globalData = getGlobalDataYear(currentYear);
-            updateSidebar('All countries', globalData['totalKilled'], globalData['sumMigrations'], globalData['targetTypes'], globalData['attackTypes']);
+            updateSidebar(
+                "All countries",
+                globalData["totalKilled"],
+                globalData["sumMigrations"],
+                globalData["targetTypes"],
+                globalData["attackTypes"],
+                globalData["terrorGroups"]
+            );
             updateMultiLineChart();
         }
     }
@@ -249,7 +283,7 @@ const makeVisualization = (error, terror, migrations) => {
         element: document.getElementById("viz-container"),
         data: data_map,
         fills: {
-            defaultFill: "#EFEFFF"
+            defaultFill: MIN_COLOR
         },
         geographyConfig: {
             highlightBorderColor: "#B7B7B7",
@@ -338,7 +372,7 @@ const makeVisualization = (error, terror, migrations) => {
     // update map
     const updateVisualization = (year) => {
         currentYear = year;
-        d3.select("#headline").text(headline + d3.select("#year").node().value);
+        d3.select("#bigYearLabel").text(d3.select("#year").node().value);
         terrorCurrentYear = getTerrorData(currentYear);
         const data_map = createDataMap(terrorCurrentYear);
         map.updateChoropleth(data_map);
@@ -350,7 +384,6 @@ const makeVisualization = (error, terror, migrations) => {
                   activeCountry.countryName
               )
             : updateMultiLineChartDot();
-
     }
 
     // slider
@@ -362,7 +395,7 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("value", currentYear)
         .attr("id", "year");
 
-    d3.select("#sidebar").insert("p", ":first-child").attr("id", "headline").text(headline + currentYear);
+    d3.select("#viz-container").insert("div", ":first-child").attr("id", "bigYearLabelContainer").insert("span").attr("id", "bigYearLabel").text(currentYear);
 
     // action when slider changes
     d3.select("#year").on("input", () => {
@@ -370,14 +403,37 @@ const makeVisualization = (error, terror, migrations) => {
         updateVisualization(year);
         if(activeCountry) {
             const countryData = getCountryDataYear(year, activeCountry["countryCode"], activeCountry["countryName"]);
-            updateSidebar(activeCountry["countryName"], countryData['totalKilled'], countryData['sumMigrations']);
+            updateSidebar(
+                activeCountry["countryName"],
+                countryData["totalKilled"],
+                countryData["sumMigrations"],
+                countryData["targetTypes"],
+                countryData["attackTypes"],
+                countryData["terrorGroups"]
+            );
+        } else {
+            const globalData = getGlobalDataYear(currentYear);
+            updateSidebar(
+                "All countries",
+                globalData["totalKilled"],
+                globalData["sumMigrations"],
+                globalData["targetTypes"],
+                globalData["attackTypes"],
+                globalData["terrorGroups"]
+            );
         }
     });
 
     // update Sidebar
     const globalData = getGlobalDataYear(currentYear);
-    updateSidebar('All countries', globalData['totalKilled'], globalData['sumMigrations'], globalData['targetTypes'], globalData['attackTypes']);
-
+    updateSidebar(
+        "All countries",
+        globalData["totalKilled"],
+        globalData["sumMigrations"],
+        globalData["targetTypes"],
+        globalData["attackTypes"],
+        globalData["terrorGroups"]
+    );
     /******************************************************
      * Draw Migrations/Terrorism multi line chart
      ******************************************************/

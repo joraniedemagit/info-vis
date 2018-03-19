@@ -7,18 +7,11 @@
     <script src="https://d3js.org/d3-queue.v3.min.js"></script>
     <script src="js/datamaps.world.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/slider.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <!-- <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-        <h5 class="my-0 mr-md-auto font-weight-normal">Information Visualization</h5>
-        <nav class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="#">Link 1</a>
-            <a class="p-2 text-dark" href="#">Link 2</a>
-        </nav>
-    </div> -->
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-9 no-padding">
@@ -32,46 +25,25 @@
                     <h3>Migrations</h3>
                     <p id="sidebar-migration"></p>
                     <div>Country of Origin:</div>
-                    <ul>
-                        <li>Afghanistan (33%)</li>
-                        <li>China (23%)</li>
-                        <li>Iraq (12%)</li>
-                        <li>Other (32%)</li>
-                    </ul>
-                    <div>Religion Migrants:</div>
+                    <canvas id="countryOfOriginChart"></canvas>
+                    <!-- <div>Religion Migrants:</div>
                     <ul>
                         <li>Jewish (33%)</li>
                         <li>Christian (23%)</li>
                         <li>Muslim (12%)</li>
                         <li>Other (32%)</li>
-                    </ul>
-
+                    </ul> -->
                     <h3>Terrorist Attacks</h3>
                     <p id="sidebar-terror"></p>
                     <div id="sidebar-targettypes">
                         <div>Terrorist Organisations:</div>
-                        <ul>
-                            <li>Taliban (62%)</li>
-                            <li>Islamic State (23%)</li>
-                            <li>Haqqani (12%)</li>
-                            <li>Other (3%)</li>
-                        </ul>
+                        <canvas id="terrorOrganisationsChart"></canvas>
                         <div>Target Types:</div>
-                        <ul>
-                            <li>Police (33%)</li>
-                            <li>Business (23%)</li>
-                            <li>Airports & Aircraft (12%)</li>
-                            <li>Other (32%)</li>
-                        </ul>
+                        <canvas id="targetTypesChart"></canvas>
                     </div>
                     <div id="sidebar-attacktypes">
                         <div>Attack Types:</div>
-                        <ul>
-                            <li>Bombing/Explosion (44%)</li>
-                            <li>Assassination (32%)</li>
-                            <li>Armed Assault (15%)</li>
-                            <li>Other (9%)</li>
-                        </ul>
+                        <canvas id="attackTypesChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -84,6 +56,7 @@
         </div>
     </div>
 
+    <script src="js/Chart.bundle.min.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/script.js"></script>
 </body>
