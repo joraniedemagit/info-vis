@@ -399,7 +399,6 @@ const makeVisualization = (error, terror, migrations) => {
         terrorCurrentYear = getTerrorData(currentYear);
         const data_map = createDataMap(terrorCurrentYear, year);
         map.updateChoropleth(data_map);
-        map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
         activeCountry
             ? updateMultiLineChartDot(
