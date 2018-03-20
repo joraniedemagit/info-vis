@@ -13,7 +13,7 @@ const MAX_COLOR = "#02386F";
 const COLOR_BLUE = 'rgba(54, 162, 235, 0.8)';
 const COLOR_RED = 'rgba(255, 99, 132, 0.8)';
 const ARC_COLOR = 'rgba(255, 99, 132, 0.8)';
-const MIN_YEAR = 1990;
+const MIN_YEAR = 1995;
 const MAX_YEAR = 2015;
 const STEP_YEAR = 5;
 const MAX_MIGRATIONS = 5;
@@ -716,7 +716,7 @@ const makeVisualization = (error, terror, migrations) => {
 
 d3.queue()
     .defer(d3.json, "data/terror-min.json")
-    .defer(d3.json, "data/migrations3.json")
+    .defer(d3.json, "data/migrations_final.json")
     .await(makeVisualization);
 
 
