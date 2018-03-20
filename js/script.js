@@ -573,25 +573,25 @@ const makeVisualization = (error, terror, migrations) => {
             .attr("class", "legend-background-migrations")
             .attr("x", MULTI_LINE_CHART_WIDTH * (9/12))
             .attr("y", MULTI_LINE_CHART_MARGINS.top - 14)
-            .attr("width", "70")
+            .attr("width", "80")
             .attr("height", "20");
         legendContainer.append("text")
             .attr("class", "legend migrations-legend")
             .attr("text-anchor", "middle")
-            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 35)
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 40)
             .attr("y", MULTI_LINE_CHART_MARGINS.top)
-            .text("Migrations");
+            .text("Immigration");
 
         legendContainer.append("rect")
             .attr("class", "legend-background-kills")
-            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 80)
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 85)
             .attr("y", MULTI_LINE_CHART_MARGINS.top - 14)
-            .attr("width", "70")
+            .attr("width", "75")
             .attr("height", "20");
         legendContainer.append("text")
             .attr("class", "legend kills-legend")
             .attr("text-anchor", "middle")
-            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 115)
+            .attr("x", MULTI_LINE_CHART_WIDTH * (9/12) + 122)
             .attr("y", MULTI_LINE_CHART_MARGINS.top)
             .text("Total Kills");
 
