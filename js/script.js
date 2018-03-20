@@ -42,11 +42,12 @@ const countFrequency = list => {
 
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
+
     console.log('Terror', terror);
     /***************************
      * Preprocess Terrorism
      ***************************/
-    const allTotalKilledValues = [];
+    // const allTotalKilledValues = [];
     const newTerror = d3.nest()
         .key(d => d.Year)
         .key(d => d.CountryCode)
@@ -58,7 +59,7 @@ const makeVisualization = (error, terror, migrations) => {
                 killed: m.Killed !== null ? m.Killed : 0
             }));
             const totalKilled = d3.sum(listKilled, d => d.killed);
-            allTotalKilledValues.push(totalKilled);
+            // allTotalKilledValues.push(totalKilled);
             return {
                 attackTypes,
                 targetTypes,
@@ -74,7 +75,8 @@ const makeVisualization = (error, terror, migrations) => {
             const attackTypes = countFrequency(leaves.map(d => d.AttackType));
             const targetTypes = countFrequency(leaves.map(d => d.Target_type));
             const terrorGroups = countFrequency(leaves.map( d => d.Group));
-            const totalKilled = d3.sum(leaves, d => d.Killed);
+            const listKilled = leaves.map(d => d.Killed ? d.Killed : 0);
+            const totalKilled = d3.sum(listKilled);
             return {
                 attackTypes,
                 targetTypes,
@@ -84,27 +86,36 @@ const makeVisualization = (error, terror, migrations) => {
         })
         .map(terror);
 
+    Object.keys(newTerror).forEach(yearKey => {
+        const totalKillsCountryYear = Object.keys(newTerror[yearKey]).map(countryKey => {
+            return newTerror[yearKey][countryKey]['totalKilled'];
+        });
+        const minKilled = arrayMin(totalKillsCountryYear);
+        const maxKilled = arrayMax(totalKillsCountryYear);
+        globalTerror[yearKey]['minKilled'] = minKilled;
+        globalTerror[yearKey]['maxKilled'] = maxKilled;
+    })
     console.log('globalTerror', globalTerror);
     console.log('newTerror', newTerror);
 
-    const minValue = arrayMin(allTotalKilledValues);
-    const maxValue = arrayMax(allTotalKilledValues);
-
-    const colorScale = d3.scale
-      .linear()
-      .domain([minValue, maxValue])
-      .range([MIN_COLOR, MAX_COLOR]);
-
     const getTerrorData = (year) => {
         const terrorCurrentYear = newTerror[year];
-        // console.log('Terror current year:', terrorCurrentYear);
         return terrorCurrentYear;
     }
 
     let terrorCurrentYear = getTerrorData(currentYear);
 
-    const createDataMap = (terrorCurrentYear) => {
+    const createDataMap = (terrorCurrentYear, year) => {
         let data_map = {};
+
+        const minValue = globalTerror[year]['minKilled'];
+        const maxValue = globalTerror[year]['maxKilled'];
+
+        const colorScale = d3.scale
+          .linear()
+          .domain([minValue, maxValue])
+          .range([MIN_COLOR, MAX_COLOR]);
+
         Object.keys(terrorCurrentYear).forEach( countryCode => {
             data_map[countryCode] = {
                 totalKilled: terrorCurrentYear[countryCode]["totalKilled"]
@@ -117,7 +128,7 @@ const makeVisualization = (error, terror, migrations) => {
         return data_map;
     }
 
-    const data_map = createDataMap(terrorCurrentYear);
+    const data_map = createDataMap(terrorCurrentYear, currentYear);
 
     /***************************
      *  Migrations
@@ -218,13 +229,13 @@ const makeVisualization = (error, terror, migrations) => {
             : 0;
         const attackTypes = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["attackTypes"]
-            : {};
+            : null;
         const targetTypes = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["targetTypes"]
-            : {};
+            : null;
         const terrorGroups = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["terrorGroups"]
-            : {};
+            : null;
         const migrationsCountry = migrations[year][countryName];
         let migrationFlows = {};
         migrationsCountry.forEach( m => {
@@ -329,6 +340,8 @@ const makeVisualization = (error, terror, migrations) => {
     updateLegend();
 
     function updateLegend() {
+        const minValue = globalTerror[currentYear]['minKilled'];
+        const maxValue = globalTerror[currentYear]['maxKilled'];
         console.log('updateLegend');
         // clear current legend
         legendSvg.selectAll('*').remove();
@@ -383,7 +396,7 @@ const makeVisualization = (error, terror, migrations) => {
         currentYear = year;
         d3.select("#bigYearLabel").text(d3.select("#year").node().value);
         terrorCurrentYear = getTerrorData(currentYear);
-        const data_map = createDataMap(terrorCurrentYear);
+        const data_map = createDataMap(terrorCurrentYear, year);
         map.updateChoropleth(data_map);
         map.arc([]);
         migrationsCurrentYear = getMigrationData(currentYear);
@@ -397,7 +410,7 @@ const makeVisualization = (error, terror, migrations) => {
     }
 
     // slider
-    d3.select('#sidebar').insert("p", ":first-child").append("input")
+    d3.select('#viz-container').insert("div", ":first-child").attr("id", "slider-container").append("input")
         .attr("type", "range")
         .attr("min", MIN_YEAR)
         .attr("max", MAX_YEAR)

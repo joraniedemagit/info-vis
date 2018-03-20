@@ -14,8 +14,16 @@
 </head>
 
 <body>
+    <div id="cover" class="d-lg-none">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col">
+                    <p class="text-center draakFadeInDown draakAnimated">Please open this visualization on a larger screen</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id='modalTrigger'> <i class="far fa-question-circle"></i> </div>
-
 	<div id='modal-wrap'>
 		<div id='modal' class='draakFadeInDown draakAnimated'>
 			<div id='close-modal' title='Close'>✕</div>
@@ -38,19 +46,17 @@
             <div class="col-md-9 no-padding">
                 <h1 id="titleText">Visualizing the Relationship Between Migration and Global Terrorism</h1>
                 <div id="viz-container"></div>
-                <!-- <svg id="legend-svg"></svg> -->
             </div>
             <div class="col-md-3 no-padding">
                 <div id="sidebar">
                     <h2 id="sidebar-country"></h2>
-                    <h3>Migrations</h3>
                     <p id="sidebar-migration"></p>
                     <canvas id="countryOfOriginChart"></canvas>
-                    <br>
-                    <h3>Terrorist Attacks</h3>
+                    <p id="no-migration-records">No migration records found</p>
                     <canvas id="terrorOrganisationsChart"></canvas>
                     <canvas id="targetTypesChart"></canvas>
                     <canvas id="attackTypesChart"></canvas>
+                    <p id="no-terror-records">No terrorism records found</p>
                 </div>
             </div>
         </div>
@@ -60,6 +66,7 @@
             </div>
         </div>
     </div>
+
     <script src="js/Chart.bundle.min.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/script.js"></script>
