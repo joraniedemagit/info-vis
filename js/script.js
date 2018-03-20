@@ -400,12 +400,13 @@ const makeVisualization = (error, terror, migrations) => {
         const data_map = createDataMap(terrorCurrentYear, year);
         map.updateChoropleth(data_map);
         migrationsCurrentYear = getMigrationData(currentYear);
-        activeCountry
-            ? updateMultiLineChartDot(
-                  activeCountry.countryCode,
-                  activeCountry.countryName
-              )
-            : updateMultiLineChartDot();
+        map.arc([]);
+        if (activeCountry) {
+            updateMultiLineChartDot(activeCountry.countryCode, activeCountry.countryName);
+            drawMigrationArcs(activeCountry.countryName);
+        } else {
+            updateMultiLineChartDot();
+        }
         updateLegend();
     }
 
