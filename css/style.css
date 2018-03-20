@@ -33,7 +33,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #sidebar {
-    height: 100vh;
+    min-height: 100vh;
     padding: 20px 30px;
     border-left: 1px solid #F5F5F5;
     position: absolute;
@@ -324,7 +324,7 @@ hr.line {
 #bigYearLabelContainer {
     position: absolute;
     right: 30px;
-    top: 60px;
+    top: 20px;
 }
 
 #bigYearLabelContainer span#bigYearLabel {
@@ -340,7 +340,7 @@ div#slider-container {
     width: 150px;
     position: absolute;
     right: 10px;
-    top: 100px;
+    top: 60px;
 }
 
 div#slider-container input {
