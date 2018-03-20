@@ -17,12 +17,12 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     const formatComma = d3.format(",");
     d3.select("#sidebar-country").text(sidebarCountry);
     const totalImmigrants = !isNaN(sumMigrations) ? formatComma(sumMigrations) : '-';
-    d3.select("#sidebar-migration-total").text("Total immigrants: " + totalImmigrants);
+    const totalMigrationLabel = d3.select("#sidebar-migration-total").text("Total immigrants: " + totalImmigrants);
     const totalKilledVal = !isNaN(totalKilled) ? formatComma(totalKilled) : '-';
-    d3.select("#sidebar-kills-total").text("Total deaths from terrorism: " + totalKilledVal);
+    const totalKilledLabel = d3.select("#sidebar-kills-total").text("Total deaths from terrorism: " + totalKilledVal);
 
     // Country Of Origin Chart
-    if (migrationFlows && !$.isEmptyObject(migrationFlows)) {
+    if (migrationFlows && !$.isEmptyObject(migrationFlows) && sumMigrations > 0) {
         const countryOfOriginChartData = getTopValues(migrationFlows, 3);
         d3.select("#countryOfOriginChart").style("display","inherit");
         if (countryOfOriginChart) {
@@ -71,16 +71,20 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
 
     // show label if no records are found
     const noMigrationRecords = d3.select("#no-migration-records");
-    if ( ( !migrationFlows || $.isEmptyObject(migrationFlows) )  && countryName !== 'All countries') {
+    if ( ( sumMigrations === 0 || !migrationFlows || $.isEmptyObject(migrationFlows) )  && countryName !== 'All countries') {
         noMigrationRecords.style("display", "inherit");
+        totalMigrationLabel.style("display", "none");
     } else {
         noMigrationRecords.style("display", "none");
+        totalMigrationLabel.style("display", "inherit");
     }
     const noTerrorRecords = d3.select("#no-terror-records");
     if (!terrorGroups && !targetTypes && !attackTypes) {
         noTerrorRecords.style("display", "inherit");
+        totalKilledLabel.style("display", "none");
     } else {
         noTerrorRecords.style("display", "none");
+        totalKilledLabel.style("display", "inherit");
     }
 };
 
