@@ -318,10 +318,7 @@ const makeVisualization = (error, terror, migrations) => {
         }
     });
 
-    // TODO: add legend
-    // map.legend();
-
-    //key
+    // legend
     const legendWidth = 140,
         legendHeight = 400;
     const legendSvg = d3.select("#viz-container")
@@ -329,46 +326,52 @@ const makeVisualization = (error, terror, migrations) => {
         .attr("id", "legend-svg")
         .attr("width", legendWidth)
         .attr("height", legendHeight);
-    const gradient = legendSvg.append("defs")
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "100%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "100%")
-        .attr("spreadMethod", "pad");
-    gradient.append("stop")
-        .attr("offset", "0%")
-        .attr("stop-color", MAX_COLOR)
-        .attr("stop-opacity", 1);
-    gradient.append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", MIN_COLOR)
-        .attr("stop-opacity", 1);
-    legendSvg.append("rect")
-        .attr("width", legendWidth - 100)
-        .attr("height", legendHeight - 100)
-        .style("fill", "url(#gradient)")
-        .attr("transform", "translate(0,10)");
-    const y = d3.scale
-        .linear()
-        .domain([minValue, maxValue])
-        .range([300, 0]);
-    const yAxis = d3.svg
-        .axis()
-        .scale(y)
-        .orient("right");
-    legendSvg.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(41,10)")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 55)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Deaths by terrorist attacks");
+    updateLegend();
 
+    function updateLegend() {
+        console.log('updateLegend');
+        // clear current legend
+        legendSvg.selectAll('*').remove();
+        const gradient = legendSvg.append("defs")
+            .append("svg:linearGradient")
+            .attr("id", "gradient")
+            .attr("x1", "100%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "100%")
+            .attr("spreadMethod", "pad");
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", MAX_COLOR)
+            .attr("stop-opacity", 1);
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", MIN_COLOR)
+            .attr("stop-opacity", 1);
+        legendSvg.append("rect")
+            .attr("width", legendWidth - 100)
+            .attr("height", legendHeight - 100)
+            .style("fill", "url(#gradient)")
+            .attr("transform", "translate(0,10)");
+        const y = d3.scale
+            .linear()
+            .domain([minValue, maxValue])
+            .range([300, 0]);
+        const yAxis = d3.svg
+            .axis()
+            .scale(y)
+            .orient("right");
+        legendSvg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(41,10)")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 55)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Deaths by terrorist attacks");
+    }
 
     // Make map responsive
     d3.select(window).on("resize", function() {
@@ -390,6 +393,7 @@ const makeVisualization = (error, terror, migrations) => {
                   activeCountry.countryName
               )
             : updateMultiLineChartDot();
+        updateLegend();
     }
 
     // slider
@@ -415,7 +419,8 @@ const makeVisualization = (error, terror, migrations) => {
                 countryData["sumMigrations"],
                 countryData["targetTypes"],
                 countryData["attackTypes"],
-                countryData["terrorGroups"]
+                countryData["terrorGroups"],
+                countryData["migrationFlows"]
             );
         } else {
             const globalData = getGlobalDataYear(currentYear);
