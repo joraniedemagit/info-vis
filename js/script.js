@@ -760,7 +760,6 @@ function arrayMax(arr) {
  ******************************/
 $("#modalTrigger").click(function() {
     $("#modal-wrap").css("display", "block");
-    console.log("KLIK");
 });
 $("#close-modal").click(function() {
     $("#modal-wrap").css("display", "none");
