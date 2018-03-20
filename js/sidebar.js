@@ -4,7 +4,7 @@ let targetTypesChart = null;
 let attackTypesChart = null;
 
 function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, migrationFlows=null) {
-    // console.log('🦖countryName', countryName);
+    console.log('🦖countryName', countryName);
     // console.log('totalKilled', totalKilled);
     // console.log('sumMigrations', sumMigrations);
     // console.log('targetTypes', targetTypes);
@@ -17,7 +17,9 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     const formatComma = d3.format(",");
     d3.select("#sidebar-country").text(sidebarCountry);
     const totalImmigrants = !isNaN(sumMigrations) ? formatComma(sumMigrations) : '-';
-    d3.select("#sidebar-migration").text("Total immigrants: " + totalImmigrants);
+    d3.select("#sidebar-migration-total").text("Total immigrants: " + totalImmigrants);
+    const totalKilledVal = !isNaN(totalKilled) ? formatComma(totalKilled) : '-';
+    d3.select("#sidebar-kills-total").text("Total deaths from terrorism: " + totalKilledVal);
 
     // Country Of Origin Chart
     if (migrationFlows && !$.isEmptyObject(migrationFlows)) {
@@ -69,8 +71,7 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
 
     // show label if no records are found
     const noMigrationRecords = d3.select("#no-migration-records");
-    if (!migrationFlows || $.isEmptyObject(migrationFlows)) {
-        console.log('No migration flows');
+    if ( ( !migrationFlows || $.isEmptyObject(migrationFlows) )  && countryName !== 'All countries') {
         noMigrationRecords.style("display", "inherit");
     } else {
         noMigrationRecords.style("display", "none");
