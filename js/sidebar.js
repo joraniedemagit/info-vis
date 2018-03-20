@@ -20,7 +20,7 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     d3.select("#sidebar-migration").text("Total immigrants: " + totalImmigrants);
 
     // Country Of Origin Chart
-    if (migrationFlows) {
+    if (migrationFlows && !$.isEmptyObject(migrationFlows)) {
         const countryOfOriginChartData = getTopValues(migrationFlows, 3);
         d3.select("#countryOfOriginChart").style("display","inherit");
         if (countryOfOriginChart) {
@@ -69,7 +69,8 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
 
     // show label if no records are found
     const noMigrationRecords = d3.select("#no-migration-records");
-    if (!migrationFlows) {
+    if (!migrationFlows || $.isEmptyObject(migrationFlows)) {
+        console.log('No migration flows');
         noMigrationRecords.style("display", "inherit");
     } else {
         noMigrationRecords.style("display", "none");

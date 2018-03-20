@@ -236,14 +236,15 @@ const makeVisualization = (error, terror, migrations) => {
         const terrorGroups = newTerror[year][countryCode]
             ? newTerror[year][countryCode]["terrorGroups"]
             : null;
-        const migrationsCountry = migrations[year][countryName];
+        const migrationsCountry = migrations[year][countryName] || null;
+        let sumMigrations = 0;
         let migrationFlows = {};
-        migrationsCountry.forEach( m => {
-            migrationFlows[m.origin.country] = m.migrants
-        });
-        const sumMigrations = migrationsCountry
-            ? migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 )
-            : 0;
+        if (migrationsCountry) {
+            migrationsCountry.forEach( m => {
+                migrationFlows[m.origin.country] = m.migrants
+            });
+            sumMigrations = migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 );
+        }
         return ({
             year,
             totalKilled,
