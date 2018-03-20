@@ -500,7 +500,7 @@ const makeVisualization = (error, terror, migrations) => {
             .scale(yScale)
             .orient("left")
             .ticks(5)
-            .tickFormat(d3.format("d"));
+            .tickFormat(d3.format(".2s"));
 
         const yAxisKills = d3.svg.axis()
             .scale(yScaleKills)
@@ -662,7 +662,7 @@ const makeVisualization = (error, terror, migrations) => {
             .scale(yScale)
             .orient("left")
             .ticks(5)
-            .tickFormat(d3.format("d"));
+            .tickFormat(d3.format(".2s"));
 
         const yAxisKills = d3.svg.axis()
             .scale(yScaleKills)
