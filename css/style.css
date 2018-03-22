@@ -191,9 +191,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #modal p {
-    padding: 60px 15%;
+    /* padding: 60px 15%; */
     line-height: 28px;
-    color: #666;
+    color: #555;
+    text-align: justify;
+}
+#modal hr.line {
+    margin-bottom: 1.2rem;
+}
+#modal p span {
+    text-align: right;
+    display: block;
 }
 
 #modalTrigger i {
@@ -365,6 +373,10 @@ p#no-terror-records, p#no-migration-records {
     height: 100%;
     background-color: #F5F5F5;
     z-index: 99999;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
 }
 #cover .container, #cover .row {
     height: 100%;

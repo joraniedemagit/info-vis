@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
     <meta charset="utf-8">
-    <title>Visualizing the Relationship Between Migration and Global Terrorism</title>
+    <title>Visualizing the Relationship Between Migration and Terrorism</title>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
     <script src="https://d3js.org/d3-queue.v3.min.js"></script>
@@ -15,7 +15,7 @@
 
 <body>
     <header>
-        <h1 id="titleText">Visualizing the Relationship Between Migration and Global Terrorism</h1>
+        <h1 id="titleText">Visualizing the Relationship Between Migration and Terrorism</h1>
     </header>
     <div id="cover" class="d-lg-none">
         <div class="container">
@@ -30,17 +30,26 @@
 	<div id='modal-wrap'>
 		<div id='modal' class='draakFadeInDown draakAnimated'>
 			<div id='close-modal' title='Close'>✕</div>
-			<h1> Visualizing the Relationship Between <br> Migration and Global Terrorism </h1>
+			<h1>Visualizing the Relationship<br>Between Migration and Terrorism</h1>
             <hr class="line"/>
-            <p>
-                This work explores the relation between immigration and terrorism through an information visualization.
-                The core of this project is an interactive geographical visualization.
-                This visualization enables the viewer to further explore this relation, with respect to factors such as religion,
-                income, education, terrorist groups, and the motivation behind the attacks.
-                The project aims to create more understanding of the complex dynamics of terrorism.
-                Furthermore, this project can be used to investigate the validity of a number of claims that are expressed by
-                the mainstream media.
-            </p>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <p>
+                            <i>"New report from DOJ & DHS shows that nearly 3 in 4 individuals convicted in terrorism related charges are foreign born… [W]e need to keep America safe, including moving away from a random chain migration and lottery system, to one that is merit-based."</i>
+                            <br>
+                            <span>— Donald Trump, Twitter (January 16, 2018)</span>
+                        </p>
+                        <p>
+                            With this tweet, US President Donald Trump cited a report from the Homeland Security and Justice departments which says that foreign-born people account for 73 percent of the convictions for international terrorism since 9/11. “International” here means that this number includes individuals who were extradited to the US or even committed crimes in other countries, neither of which poses a national security threat or represents a failure of the immigration vetting system. This is a detail the President left out, resulting in a seemingly increased number of foreign-born terrorists. With misleading information such as this together with a lack of evidence, one may attempt to draw a causal connection between immigration and acts of terrorism.
+                        </p>
+                        <p>
+                            In order to inform this debate, this work explores the relation between immigration and terrorism through an information visualization. The core of this project is an interactive geographical visualization, in which the development of migration inflows on country-level can be compared with the the development of terrorist fatalities over time. This visualization also enables the viewer to further explore the terror incidents with respect to the type of attacks, the type of targets and the responsible terrorist organizations. Furthermore, this project can be used to investigate the validity of a number of claims that are expressed by the mainstream media.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
 		</div>
 	</div>
 
