@@ -42,12 +42,9 @@ const countFrequency = list => {
 
 const makeVisualization = (error, terror, migrations) => {
     if (error) throw error;
-
-    console.log('Terror', terror);
     /***************************
      * Preprocess Terrorism
      ***************************/
-    // const allTotalKilledValues = [];
     const newTerror = d3.nest()
         .key(d => d.Year)
         .key(d => d.CountryCode)
@@ -59,7 +56,6 @@ const makeVisualization = (error, terror, migrations) => {
                 killed: m.Killed !== null ? m.Killed : 0
             }));
             const totalKilled = d3.sum(listKilled, d => d.killed);
-            // allTotalKilledValues.push(totalKilled);
             return {
                 attackTypes,
                 targetTypes,
@@ -95,9 +91,6 @@ const makeVisualization = (error, terror, migrations) => {
         globalTerror[yearKey]['minKilled'] = minKilled;
         globalTerror[yearKey]['maxKilled'] = maxKilled;
     })
-    console.log('globalTerror', globalTerror);
-    console.log('newTerror', newTerror);
-
     const getTerrorData = (year) => {
         const terrorCurrentYear = newTerror[year];
         return terrorCurrentYear;
@@ -133,8 +126,6 @@ const makeVisualization = (error, terror, migrations) => {
     /***************************
      *  Migrations
      ***************************/
-    console.log('Migrations: ', migrations);
-
     const globalMigrations = {};
     Object.keys(migrations).forEach(yearKey => {
         Object.keys(migrations[yearKey]).forEach( countryKey => {
@@ -148,7 +139,6 @@ const makeVisualization = (error, terror, migrations) => {
             }
         })
     });
-    console.log('globalMigrations', globalMigrations);
 
     const getMigrationData = (year) => {
         const migrationsCurrentYear = migrations[currentYear] ? migrations[currentYear] : [];
@@ -266,10 +256,8 @@ const makeVisualization = (error, terror, migrations) => {
         activeCountry = (JSON.stringify(activeCountry) !== JSON.stringify(clickedCountry)) ? clickedCountry : null;
         if (activeCountry) {
             // draw arcs to active country
-            console.log('New active country:', countryName, countryCode);
             drawMigrationArcs(countryName);
             const countryData = getCountryDataYear(currentYear, countryCode, countryName);
-            console.log('getCountryDataYear', countryData);
             updateSidebar(
                 countryName,
                 countryData["totalKilled"],
@@ -343,7 +331,6 @@ const makeVisualization = (error, terror, migrations) => {
     function updateLegend() {
         const minValue = globalTerror[currentYear]['minKilled'];
         const maxValue = globalTerror[currentYear]['maxKilled'];
-        console.log('updateLegend');
         // clear current legend
         legendSvg.selectAll('*').remove();
         const gradient = legendSvg.append("defs")

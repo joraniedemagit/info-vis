@@ -4,13 +4,6 @@ let targetTypesChart = null;
 let attackTypesChart = null;
 
 function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, migrationFlows=null) {
-    console.log('🦖countryName', countryName);
-    // console.log('totalKilled', totalKilled);
-    // console.log('sumMigrations', sumMigrations);
-    // console.log('targetTypes', targetTypes);
-    // console.log('attackTypes', attackTypes);
-    // console.log('terrorGroups', terrorGroups);
-
     const sidebarCountry = countryName
         ? countryName
         : "All countries";
