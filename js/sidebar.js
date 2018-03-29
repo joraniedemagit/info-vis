@@ -3,7 +3,7 @@ let terrorGroupsChart = null;
 let targetTypesChart = null;
 let attackTypesChart = null;
 
-function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, migrationFlows=null) {
+function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, attackTypes, terrorGroups, nAttacks, migrationFlows=null) {
     const sidebarCountry = countryName
         ? countryName
         : "All countries";
@@ -13,6 +13,9 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     const totalMigrationLabel = d3.select("#sidebar-migration-total").text("Total immigrants: " + totalImmigrants);
     const totalKilledVal = !isNaN(totalKilled) ? formatComma(totalKilled) : '-';
     const totalKilledLabel = d3.select("#sidebar-kills-total").text("Total deaths from terrorism: " + totalKilledVal);
+
+    const totalAttacksVal = !isNaN(nAttacks) ? formatComma(nAttacks) : '-';
+    const totalAttacksLabel = d3.select("#sidebar-attacks-total").text("Total attacks: " + totalAttacksVal);
 
     // Country Of Origin Chart
     if (migrationFlows && !$.isEmptyObject(migrationFlows) && sumMigrations > 0) {
@@ -75,9 +78,11 @@ function updateSidebar(countryName, totalKilled, sumMigrations, targetTypes, att
     if (!terrorGroups && !targetTypes && !attackTypes) {
         noTerrorRecords.style("display", "inherit");
         totalKilledLabel.style("display", "none");
+        totalAttacksLabel.style("display", "none");
     } else {
         noTerrorRecords.style("display", "none");
         totalKilledLabel.style("display", "inherit");
+        totalAttacksLabel.style("display", "inherit");
     }
 };
 

@@ -56,11 +56,13 @@ const makeVisualization = (error, terror, migrations) => {
                 killed: m.Killed !== null ? m.Killed : 0
             }));
             const totalKilled = d3.sum(listKilled, d => d.killed);
+            const nAttacks = v.length;
             return {
                 attackTypes,
                 targetTypes,
                 totalKilled,
-                terrorGroups
+                terrorGroups,
+                nAttacks
             };
         })
         .map(terror);
@@ -73,11 +75,13 @@ const makeVisualization = (error, terror, migrations) => {
             const terrorGroups = countFrequency(leaves.map( d => d.Group));
             const listKilled = leaves.map(d => d.Killed ? d.Killed : 0);
             const totalKilled = d3.sum(listKilled);
+            const nAttacks = leaves.length;
             return {
                 attackTypes,
                 targetTypes,
                 terrorGroups,
-                totalKilled
+                totalKilled,
+                nAttacks
             }
         })
         .map(terror);
@@ -203,13 +207,15 @@ const makeVisualization = (error, terror, migrations) => {
         const targetTypes = globalTerror[year]["targetTypes"];
         const terrorGroups = globalTerror[year]["terrorGroups"];
         const sumMigrations = globalMigrations[year];
+        const nAttacks = globalTerror[year]["nAttacks"];
         return ({
             year,
             totalKilled,
             sumMigrations,
             attackTypes,
             targetTypes,
-            terrorGroups
+            terrorGroups,
+            nAttacks
         })
     };
 
@@ -235,6 +241,9 @@ const makeVisualization = (error, terror, migrations) => {
             });
             sumMigrations = migrationsCountry.reduce( (sum, obj) => (sum += parseInt(obj["migrants"])), 0 );
         }
+        const nAttacks = newTerror[year][countryCode]
+            ? newTerror[year][countryCode]["nAttacks"]
+            : null;
         return ({
             year,
             totalKilled,
@@ -242,6 +251,7 @@ const makeVisualization = (error, terror, migrations) => {
             attackTypes,
             targetTypes,
             terrorGroups,
+            nAttacks,
             migrationFlows
         });
     };
@@ -265,6 +275,7 @@ const makeVisualization = (error, terror, migrations) => {
                 countryData["targetTypes"],
                 countryData["attackTypes"],
                 countryData["terrorGroups"],
+                countryData["nAttacks"],
                 countryData["migrationFlows"]
             );
             updateMultiLineChart(countryCode, countryName);
@@ -279,7 +290,8 @@ const makeVisualization = (error, terror, migrations) => {
                 globalData["sumMigrations"],
                 globalData["targetTypes"],
                 globalData["attackTypes"],
-                globalData["terrorGroups"]
+                globalData["terrorGroups"],
+                globalData["nAttacks"]
             );
             updateMultiLineChart();
         }
@@ -421,6 +433,7 @@ const makeVisualization = (error, terror, migrations) => {
                 countryData["targetTypes"],
                 countryData["attackTypes"],
                 countryData["terrorGroups"],
+                countryData["nAttacks"],
                 countryData["migrationFlows"]
             );
         } else {
@@ -431,7 +444,8 @@ const makeVisualization = (error, terror, migrations) => {
                 globalData["sumMigrations"],
                 globalData["targetTypes"],
                 globalData["attackTypes"],
-                globalData["terrorGroups"]
+                globalData["terrorGroups"],
+                globalData["nAttacks"]
             );
         }
     });
@@ -444,7 +458,8 @@ const makeVisualization = (error, terror, migrations) => {
         globalData["sumMigrations"],
         globalData["targetTypes"],
         globalData["attackTypes"],
-        globalData["terrorGroups"]
+        globalData["terrorGroups"],
+        globalData["nAttacks"]
     );
     /******************************************************
      * Draw Migrations/Terrorism multi line chart
